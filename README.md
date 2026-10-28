@@ -5,6 +5,7 @@ My idols Casey Muratori and Jonathan Blow have led me down the path to systems p
 ## Resources
 
 * [Untangling Lifetimes](https://www.dgtlgrove.com/p/untangling-lifetimes-the-arena-allocator)
+* [GingerBill Arena Allocator Guide](https://www.gingerbill.org/article/2019/02/08/memory-allocation-strategies-002/)
 * [How to actually use arenas (and program in C pain free)](https://alonsozamorano.me/how-to-actually-use-arenas-and-program-in-c/)
 * [The Arena - Custom Memory Allocators in C](https://www.bytesbeneath.com/p/the-arena-custom-memory-allocators)
 * [Tsoding's Arena Example](https://github.com/tsoding/arena/blob/master/arena.h)
