@@ -1,5 +1,7 @@
-#include "arena.h"
 #include <stdint.h>
+#include <string.h>
+
+#include "arena.h"
 
 int main(void) {
     return 0;
@@ -67,7 +69,23 @@ uintptr_t align_forward(uintptr_t ptr, size_t align) {
 // data in an `Arena` structure
 void *arena_alloc_align(Arena *arena, size_t size, size_t align) {
     // Align `curr_offset` forward to the specified alignment
-    uintptr_t curr_ptr = (uintptr_t)arena->buffer + (uintptr_t)arena->current_offset; // Need to revisit this and how it actually gives us the current pointer
-    uintptr_t offset = align_forward(curr_ptr, align); // How do we use `align` when actually calling the function? I thought that was the point of `align_forward`?
-    offset -= (uintptr_t)arena->buffer; // Change to relative offset
+    // I still have no fucking idea what the buffer is means for, or where `align` is supposed to come from
+    // I'm pretty sure the "buffer" is actually supposed to be the point where the arena actually begins... but I'm still not entirely sure
+    uintptr_t curr_ptr = (uintptr_t)arena->buffer + (uintptr_t)arena->current_offset;
+    uintptr_t offset = align_forward(curr_ptr, align); // How create `align` before actually calling the function? I thought that was the point of `align_forward`?
+    offset -= (uintptr_t)arena->buffer; // Change to relative offset (Pretty certain he means relative to the previous offset)
+
+    // Check to see if the backing memory has space left
+    if (offset+size <= arena->buffer_length) {
+        void *ptr = &arena->buffer[offset]; // Find the location of the current offset
+        arena->previous_offset = offset;
+        arena->current_offset = offset+size;
+
+        // Zero new memory by default
+        memset(ptr, 0, size);
+        return ptr;
+    }
+
+    // Return NULL if the arena is out of memory
+    return NULL;
 }
