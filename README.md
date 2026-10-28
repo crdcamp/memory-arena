@@ -2,6 +2,8 @@
 
 My idols Casey Muratori and Jonathan Blow have led me down the path to systems programming (despite them being game developers). So, in this repository, I create a simple memory arena that I can reuse in other projects. Rather than creating a "pointer jungle" for every C application I create, I want the memory of my future programs to be structured and maintainable.
 
+(Huge shoutout to "GingerBill", the creator of the Odin language, for a really solid guide on helping me get started with all of this.)
+
 ## Resources
 
 * [Untangling Lifetimes](https://www.dgtlgrove.com/p/untangling-lifetimes-the-arena-allocator)
