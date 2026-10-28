@@ -1,3 +1,5 @@
+#include "arena.h"
+
 int main(void) {
     return 0;
 }
@@ -33,12 +35,12 @@ uintptr_t align_forward(uintptr_t ptr, size_t align) {
     assert(is_power_of_two(align));
 
     p = ptr;
-    a = (uintptr_t)align
-    // Same as (p % a) but daster as `a` is a power of two
+    a = (uintptr_t)align;
+    // Same as (p % a) but faster as `a` is a power of two
     // (basically some more bitwise wizardry that I need to study)
-    modulo = p & (a-1)
+    modulo = p & (a-1);
 
-    if (modeulo != 0) {
+    if (modulo != 0) {
         // If `p` address is not aligned, push the address to the next
         // value which is aligned
         p += a - modulo;
