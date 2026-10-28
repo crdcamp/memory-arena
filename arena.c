@@ -32,12 +32,20 @@ uintptr_t align_forward(uintptr_t ptr, size_t align) {
     // Exits function if false
     // Not sure why you'd use assert here though
     // (I thought assert was meant to be used primarily for testing?)
+    // Make sure to look into this some more later
     assert(is_power_of_two(align));
 
+    // Why do we assign p to the pointer though? Why not just directly work with the pointer?
+    // Like, why would we want to avoid editing the original pointer in this case?
+    // Maybe this will become clearer when we actually see the function called
     p = ptr;
     a = (uintptr_t)align;
     // Same as (p % a) but faster as `a` is a power of two
     // (basically some more bitwise wizardry that I need to study)
+
+    // The bitwise `&` operator compares each bit at the same position
+    // in the integer and the resultant bit will be set (1) only if both
+    // corresponding bits are set (1), otherwise it will be unset (0)
     modulo = p & (a-1);
 
     if (modulo != 0) {
@@ -47,3 +55,5 @@ uintptr_t align_forward(uintptr_t ptr, size_t align) {
     }
     return p;
 }
+
+// Now that we know how to align memory, that means we can create an
