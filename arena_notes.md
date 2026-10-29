@@ -1,16 +1,21 @@
 # Arena Notes
 
-Before we can even start thinking about creating a memory arena, we need to cover some basics on computer architecture, memory addressing, and memory alignment.
+Before we can even start thinking about creating a memory arena, we need to cover some basics on bitwise mapping, computer architecture, memory addressing, and memory alignment.
 
-# Memory Addressing
+They really made this whole "create an arena" thing sound like less of an endeavor than it really is. So many prerequisites!
 
-Computers commonly address their memory in word-sized chunks. A **word** is a computer's natural unit for data. Its size is defined by the computer's architecture. You can determine your computer's architecture with the following commands:
+# Textbook Chapters to Focus On
 
-```bash
-getconf WORD_BIT # Tells us the word size (32 bit on this Macbook M4)
-getconf LONG_BIT # Tells us the `int long` size (64 bit on this Maxbook M4)
-```
+* **Chapter 2, Representing and Manipulating Information**. Start here. It covers bitwise ops, masking, shifts, and two’s complement, which is exactly the ~(align - 1) material.
+* **Section 3.9.3, Data Alignment**. Short, and directly on topic. Chapter 3 (assembly) is useful but not required for the arena. Skim it, and don’t let it become a rabbit hole.
+* **Chapter 6, The Memory Hierarchy**. Explains why alignment and locality matter for performance.
+* **Section 9.9, Dynamic Memory Allocation**. This is the most relevant part of the book. It walks through building a malloc, including alignment, headers, and fragmentation, and an arena is a simplified version of the same ideas.
+
+# Representing
+
+The following information comes from [Chapter 2 of Computer Systems: A Programmer's Perspective](https://www.cs.sfu.ca/~ashriram/Courses/CS295/assets/books/CSAPP_2016.pdf).
 
 # Sources
 
-[Alignment in C](https://hps.vi4io.org/_media/teaching/wintersemester_2013_2014/epc-14-haase-svenhendrik-alignmentinc-paper.pdf)
+* [Computer Systems: A Programmer's Perspective](https://www.cs.sfu.ca/~ashriram/Courses/CS295/assets/books/CSAPP_2016.pdf)
+* [IBM - Data alignment: Straighten up and fly right](https://developer.ibm.com/articles/pa-dalign/)
