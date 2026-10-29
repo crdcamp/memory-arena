@@ -180,4 +180,54 @@ This ensures that the data following it (in this case, the start of the jump tab
 
 Since each table entry is 8 bytes long, the successive elements will obey the 8-byte alignment restriction.
 
-(Make sure to find the information on the reference page before continuing)
+However, I have a feeling that this doesn't require assembly code to configure. We'll have to revisit this subject when go through the rest of the [GingerBill's code](https://www.gingerbill.org/article/2019/02/08/memory-allocation-strategies-002/#heading-1-1).
+
+For code involving structures, the compiler may need to insert gaps in the field allocation to ensure that each structure element satisfies its alignment requirement. The structure will than have some required alignment for its starting address.
+
+For example, consider the structure declaration:
+
+```c
+struct S1 {
+    int i;
+    char c;
+    int j;
+};
+```
+
+Suppose the compiler used the minimal 9-byte allocation, diagrammed as follows:
+
+![9 Byte Allocation Diagram](images/9-byte-allocation-diagram.png)
+
+Then it would be impossible to satisfy the 4-byte alignment requirement for both fields `i` (offset 0) and `j` (offset 5). Instead, the compiler inserts a 3-byte gap (shown here shaded in blue) between fields `c` and `j`:
+
+![9 Byte Allocation Diagram](images/9-byte-allocation-diagram-2.png)
+
+As a result, `j` has offset 8, and the overall structure size is 12 bytes. Furthermore, the compiler must ensure that any pointer `p` of type `struct S1*` satisfies a 4-byte alignment.
+
+Let pointer `p` have value `xp`. Then `xp` must be a multiple of 4. This guarantees that both `p->i` (address xp) and `p->j` (address `xp` + 8) will satisfy their 4-byte alignment requirements.
+
+In addition, the compiler may need to add padding to the end of the structure so that each element in an array of structures will satisfy its alignment requirement. For example, consider the following structure declaration:
+
+```c
+struct S2 {
+    int i;
+    int j;
+    char c;
+}
+```
+
+If we pack this structure into 9 bytes, we can still satisfy the alignment requirements for fields `i` and `j` by making sure that the starting address of the structure satisfies a 4-byte alignment requirement. Consider, however, the following declaration:
+
+```c
+struct S2 d[4]
+```
+
+With the 9-byte allocation, it's not possible to satisfy the alignment requirement for each element of `d`, because these elements will have addresses `xd`, `xd` + 9, `xd` + 18, and `xd` + 27. Instead, the compiler allocates 12 bytes for structure `S2`, with the final 3 bytes being wasted space:
+
+![Wasted Space Alignment](images/wasted-space-alignment.png)
+
+That way, the elements of `d` will have addresses `xd`, `xd` + 12, `xd` + 24, and `xd` + 36. As long as `xd` is a multiple of 4, all of the alignment restrictions will be satisfied.
+
+## [Alignment Continued](https://hps.vi4io.org/_media/teaching/wintersemester_2013_2014/epc-14-haase-svenhendrik-alignmentinc-paper.pdf)
+
+Now let's show some more figures from a different source on how alignment works. **Note that all of these diagrams are in reference to 32-bit systems**. So, when considering applications for your system, just take each chunk and multiply it by 2.
