@@ -7,20 +7,18 @@ int main(void) {
     return 0;
 }
 
-// Note:"`uintptr_t` is an unsigned integer type with the property
-// that any valid pointer to void can be converted to this type, then
-// converted back to pointer to void, and the result will compare
-// equal to the original pointer"
-// Pretty not great explanation, but I think I understand
+// Source for note: https://blog.feabhas.com/2024/02/navigating-memory-in-c-a-guide-to-using-stduintptr_t-for-address-handling/
+// (Resource is referring to C++, but I think it likely translates fine here)
+// Note: `uintptr_t` is a versatile unsigned integer type designed
+// to store the entire address range of any object, ensuring portability
+// The primary advantage of this data type is its portability. Since
+// it's guaranteed to hold any object's address, it helps ensure this
+// portability
 
-// So, it's essentially a data type that allows us to pass void
-// type pointers to it without any isues, which also enables us
-// to store something that's the same size of the pointer. I think
-// it's a way of not enforcing types when creating memory so aggressively
+// In summary: it's a data type for passing pointers around in a
+// cross-compatible manner. ONLY use this data type for address
+// manipulation
 
-// I think it might be some combination of cross compatibility and
-// some other sort of practices also... I have no idea honestly
-// I'm in a bit over my head right now
 
 bool is_power_of_two(uintptr_t x) {
     // This is some crazy bitwise wizardry that I've never seen
@@ -36,8 +34,7 @@ bool is_power_of_two(uintptr_t x) {
 uintptr_t align_forward(uintptr_t ptr, size_t align) {
     uintptr_t p, a, modulo;
 
-    // Exits function if false
-    // Not sure why you'd use assert here though
+    // Not sure why you'd use assert here
     // (I thought assert was meant to be used primarily for testing?)
     // Make sure to look into this some more later
     assert(is_power_of_two(align));
