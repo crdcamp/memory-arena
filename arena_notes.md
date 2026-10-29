@@ -96,6 +96,22 @@ uintptr_t align_forward(uintptr_t ptr, size_t align) {
 
 Without `uintptr_t`, we risk improperly aligning the memory. If we did not explicitly define this type, the memory alignment would be handled handled differently on different architecture. Remember that the size of a pointer can be different on different machines, thus implicating that memory alignment must also account for this.
 
+Most of the data types encode signed values, unless prefixed by the keyword, `unsigned`. The exception to this is data type `char`. Although most compilers and machines treat these as unsigned data, the C standard does not guarantee this.
+
+Instead, you should use the declaration `signed char` to guarantee a 1-byte signed value. In many contexts, however, the program's behavior is insensitive to whether data type `char` is signed or unsigned. The arena code we've been referring to is an example of one of these exceptions:
+
+```c
+typedef struct Arena Arena;
+struct Arena {
+	unsigned char *buf;
+	size_t         buf_len;
+	size_t         prev_offset;
+	size_t         curr_offset;
+};
+```
+
+Here, we use an `unsigned char`, since this is the **conventional type for raw bytes**. It signals "untyped memory", not text.
+
 # Sources
 
 * [Computer Systems: A Programmer's Perspective](https://www.cs.sfu.ca/~ashriram/Courses/CS295/assets/books/CSAPP_2016.pdf)
