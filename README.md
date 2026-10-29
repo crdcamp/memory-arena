@@ -22,7 +22,7 @@ A big thank you to "GingerBill", the creator of the Odin language, for a really 
 
 ### Primary
 
-* [GingerBill Arena Allocator Guide](https://www.gingerbill.org/article/2019/02/08/memory-allocation-strategies-002/)
+* [GingerBill - Arena Allocator Guide](https://www.gingerbill.org/article/2019/02/08/memory-allocation-strategies-002/)
 * [Textbook - Computer Systems: A Programmer's Perspective](https://www.cs.sfu.ca/~ashriram/Courses/CS295/assets/books/CSAPP_2016.pdf)
 
 ### Secondary
