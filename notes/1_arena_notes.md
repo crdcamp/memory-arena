@@ -6,16 +6,14 @@ They really made this whole "create an arena" thing sound like less of an endeav
 
 # Textbook Chapters to Focus On
 
-Claude's recommendations for navigating the textbook:
+Claude's recommendations for navigating [the textbook](https://www.cs.sfu.ca/~ashriram/Courses/CS295/assets/books/CSAPP_2016.pdf):
 
 * **Chapter 2, Representing and Manipulating Information**. Start here. It covers bitwise ops, masking, shifts, and two’s complement, which is exactly the ~(align - 1) material.
 * **Section 3.9.3, Data Alignment**. Short, and directly on topic. Chapter 3 (assembly) is useful but not required for the arena. Skim it, and don’t let it become a rabbit hole.
 * **Chapter 6, The Memory Hierarchy**. Explains why alignment and locality matter for performance.
 * **Section 9.9, Dynamic Memory Allocation**. This is the most relevant part of the book. It walks through building a malloc, including alignment, headers, and fragmentation, and an arena is a simplified version of the same ideas.
 
-# Chapter 2: Representing and Manipulating Information
-
-The following information comes from [Chapter 2 of Computer Systems: A Programmer's Perspective](https://www.cs.sfu.ca/~ashriram/Courses/CS295/assets/books/CSAPP_2016.pdf).
+# [Chapter 2: Representing and Manipulating Information](https://www.cs.sfu.ca/~ashriram/Courses/CS295/assets/books/CSAPP_2016.pdf)
 
 ## Information Storage
 
@@ -134,18 +132,52 @@ The simplest Boolean algebra is defined over the two-element set {0, 1}. Here ar
 
 We can extend the four Boolean operations to also operate on **bit vectors**, strings of zeros and ones of some fixed length *w*. We define the operations over bit vectors according to their applications to the matching elements of the arguments.
 
-As examples, consider the case where *w* = 4 and with arguments *a* = [0110] and *b* = [1100]. The four oprations would be as follows:
+As examples, consider the case where *w* = 4 and with arguments *a* = [0110] and *b* = [1100]. The four operations would be as follows:
 
 ![Bitwise Vector Operations Table](images/bitwise-vec-operations-table.png)
 
-The practical applications of bitwise operations are covered in [`practical_bitwise_operations.md`](practical_bitwise_operations.md), as these can be incredibly useful for optimizing for BLAZINGLY FAST code.
+The practical applications of bitwise operations are covered in [`practical_bitwise_operations.md`](practical_bitwise_operations.md), as these can be incredibly useful for optimizing for BLAZINGLY FAST code. I've deemed these unnecessary to study in-depth for now, since pretty much everything I need is listed in the linked document.
 
-# Chapter 3, Section 3.9.3 - Data Alignment
+# [Chapter 3, Section 3.9.3 - Data Alignment](https://www.cs.sfu.ca/~ashriram/Courses/CS295/assets/books/CSAPP_2016.pdf)
 
+Many computer systems place restrictions on the allowable addresses for the primitive data types, requiring that the address for some objects must be a multiple of some value *K* (typically 2, 4, or 8). Such **alignment restrictions** simplify the design of the hardware forming the interface between the processor and the memory system.
 
+For example, suppose a processor always fetches 8 bytes from memory with an address that must be a multiple of 8. If we can guarantee that any `double` will be aligned to have its address be a multiple of 8, then the value can be read or written with a single memory operation. Otherwise, we may need to perform two memory accesses, **since the object might be split across two 8-byte memory blocks**.
 
-# Sources
+For this reason, it's generally recommended that data be aligned to improve memory system performance. For instance, Intel's recommended alignment rule says that any object of *K* bytes must have an address that is a multiple of *K*.
 
-* [Computer Systems: A Programmer's Perspective](https://www.cs.sfu.ca/~ashriram/Courses/CS295/assets/books/CSAPP_2016.pdf)
-* [IBM - Data alignment: Straighten up and fly right](https://developer.ibm.com/articles/pa-dalign/)
-* [Ginger Bill's Memory Allocation Strategies](https://www.gingerbill.org/article/2019/02/08/memory-allocation-strategies-002/)
+Alignment is enforced by making sure that every data type is organized and allocated in such a way that every object within the type satisfies its alignment restrictions. **The compiler places directives in the assembly code indicating the desired alignment for global data**.
+
+And... there ya go. That's where the `align` parameter in the `align_forward` function comes in!
+
+```c
+uintptr_t align_forward(uintptr_t ptr, size_t align) {
+	uintptr_t p, a, modulo;
+
+	assert(is_power_of_two(align));
+
+	p = ptr;
+	a = (uintptr_t)align;
+	// Same as (p % a) but faster as 'a' is a power of two
+	modulo = p & (a-1);
+
+	if (modulo != 0) {
+		// If 'p' address is not aligned, push the address to the
+		// next value which is aligned
+		p += a - modulo;
+	}
+	return p;
+}
+```
+
+So, `align` must be determined somehow by gathering information about the device the code is running on. For example, the assembly-code declaration of the jump table (found god knows where in the textbook - page 271 if your interested) contains the following directive on line 2:
+
+```
+.align 8
+```
+
+This ensures that the data following it (in this case, the start of the jump table) will start with an address that is a multiple of 8. In the instance of the arena, we were looking for powers of 2.
+
+Since each table entry is 8 bytes long, the successive elements will obey the 8-byte alignment restriction.
+
+(Make sure to find the information on the reference page before continuing)
