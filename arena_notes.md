@@ -17,7 +17,7 @@ The following information comes from [Chapter 2 of Computer Systems: A Programme
 
 ## Information Storage
 
-Rather than accessing individual bits in memory, most computers use blocks of 8 bits, or bytes, as the smallest addressable unit of memory. This is why `char` is used to represent the arena buffer in [GingerBill's code](https://www.gingerbill.org/article/2019/02/08/memory-allocation-strategies-002/):
+Rather than accessing individual bits in memory, most computers use blocks of 8 bits, or *bytes*, as the smallest addressable unit of memory. This is why the `char` type is used to represent the arena buffer in [GingerBill's code](https://www.gingerbill.org/article/2019/02/08/memory-allocation-strategies-002/#heading-2-5), as a `char` is one byte, thus enabling us to navigate the spaces in memory by individual bytes for alignment purposes:
 
 ```c
 typedef struct Arena Arena;
@@ -34,6 +34,37 @@ A machine-level program views memory as a very large array of bytes, referred to
 Essentially, there's a BUNCH of abstracted-away operations that are used to allocate and manage the storage for different parts of a program. This management is all performed in the virtual address space.
 
 For example, **the value of a pointer in C is the virtual address of the first byte of some block of storage**. The C compiler also associates type information with each pointer, so that it can generate different machine-level code to access the value stored at the location designated by the pointer.
+
+## Data Sizes
+
+Every computer has a **word size, indicating the nominal size of pointer data**. In recent years, there has been a widespread shift from machines with 32-bit word sizes to those with word sizes of 64-bit.
+
+You can see this for yourself with the following code, since the word size on a system will *usually* match the pointer size:
+
+```c
+#include <stdio.h>
+
+int main(void) {
+    void *ptr;
+    printf("A pointer on your system is %zu bytes (%zu bits)\n", sizeof(ptr), sizeof(ptr)*8);
+    return 0;
+}
+// Output: `A pointer on your system is 8 bytes (64 bits)`
+```
+
+Most 64-bit machines can also run programs compiled for use on 32-bit machines, a form of backward compatibility. So, for example, when a program `prog.c` is compiled with the directive:
+
+```bash
+gcc -m32 prog.c
+```
+
+then this program will run correctly on either a 32-bit or a 64-bit machine. On the other hand, a program compiled with the directive:
+
+```bash
+gcc -m64 prog.c
+```
+
+will only run on a 64-bit machine.
 
 # Sources
 
