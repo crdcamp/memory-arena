@@ -6,6 +6,8 @@ They really made this whole "create an arena" thing sound like less of an endeav
 
 # Textbook Chapters to Focus On
 
+Claude's recommendations for navigating the textbook:
+
 * **Chapter 2, Representing and Manipulating Information**. Start here. It covers bitwise ops, masking, shifts, and two’s complement, which is exactly the ~(align - 1) material.
 * **Section 3.9.3, Data Alignment**. Short, and directly on topic. Chapter 3 (assembly) is useful but not required for the arena. Skim it, and don’t let it become a rabbit hole.
 * **Chapter 6, The Memory Hierarchy**. Explains why alignment and locality matter for performance.
@@ -111,39 +113,6 @@ struct Arena {
 ```
 
 Here, we use an `unsigned char`, since this is the **conventional type for raw bytes**. It signals "untyped memory", not text.
-
-## Quick Notes on the "Address Of" & Operator
-
-The C "address of" operator `&` creates a pointer. In this example, the expression `&x` creates a pointer to the location holding the object indicated by variable `x`. You can also cast types using the `&` operator, as we do with the cast `(byte_pointer) &x` in the following code.
-
-**The casts shown here do not change the actual pointer**, they simply direct the compiler to refer to the data being pointed to according to the new data type:
-
-```c
-#include <stdio.h>
-
-typedef unsigned char *byte_pointer;
-
-void show_bytes(byte_pointer start, size_t len) {
-    int i;
-    for (i = 0; i < len; i++)
-    printf(" %.2x", start[i]);
-    printf("\n");
-}
-
-void show_int(int x) {
-    show_bytes((byte_pointer) &x, sizeof(int));
-}
-
-void show_float(float x) {
-    show_bytes((byte_pointer) &x, sizeof(float));
-}
-
-void show_pointer(void *x) {
-    show_bytes((byte_pointer) &x, sizeof(void *));
-}
-```
-
-For clarity in the arena code, you might also want to consider using `typedef unsigned char *byte_pointer` in your code as well.
 
 # Sources
 
