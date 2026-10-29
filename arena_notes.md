@@ -72,7 +72,7 @@ Among these are data types `int32_t` and `int64_t`, having exactly 4 and 8 bytes
 
 **This also ties into GingerBill's use of the `uintptr_t` data type**. [`uintptr_t` is an unsigned integer type (defined in `<stdint.h>`)](https://www.tutorialpedia.org/blog/what-is-the-uintptr-t-data-type/#what-is-uintptr_t) that is capable of storing a data pointer. Its primary purpose is to provide a portable way to store the memory address of a pointer as an integer. It ensures cross-compatibility between different computer architectures since it is explicitly standardized to accommodate any pointer.
 
-This is why we use `uintptr_` in Bill's [`align_forward` function](https://www.gingerbill.org/article/2019/02/08/memory-allocation-strategies-002/#heading-2-5). We need the pointers to be standardized to ensure the code works on different hardware:
+This is why we use `uintptr_t` in Bill's [`align_forward` function](https://www.gingerbill.org/article/2019/02/08/memory-allocation-strategies-002/#heading-2-5). We need the pointers to be standardized to ensure the code works on different hardware:
 
 ```c
 uintptr_t align_forward(uintptr_t ptr, size_t align) {
@@ -111,6 +111,35 @@ struct Arena {
 ```
 
 Here, we use an `unsigned char`, since this is the **conventional type for raw bytes**. It signals "untyped memory", not text.
+
+## Quick Notes on the "Address Of" & Operator
+
+The C "address of" operator `&` creates a pointer. In this example, the expression `&x` creates a pointer to the location holding the object indicated by variable `x`. You can also cast types using the `&` operator, as we do with the cast `(byte_pointer) &x` in the following code.
+
+**The casts shown here do not change the actual pointer**, they simply direct the compiler to refer to the data being pointed to according to the new data type:
+
+```c
+#include <stdio.h>
+typedef unsigned char *byte_pointer;
+void show_bytes(byte_pointer start, size_t len) {
+int i;
+for (i = 0; i < len; i++)
+printf(" %.2x", start[i]);
+printf("\n");
+ }
+
+ void show_int(int x) {
+ show_bytes((byte_pointer) &x, sizeof(int));
+ }
+
+ void show_float(float x) {
+ show_bytes((byte_pointer) &x, sizeof(float));
+ }
+
+ void show_pointer(void *x) {
+ show_bytes((byte_pointer) &x, sizeof(void *));
+ }
+```
 
 # Sources
 
