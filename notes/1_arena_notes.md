@@ -138,6 +138,12 @@ As examples, consider the case where *w* = 4 and with arguments *a* = [0110] and
 
 ![Bitwise Vector Operations Table](images/bitwise-vec-operations-table.png)
 
+The practical applications of bitwise operations are covered in [`practical_bitwise_operations.md`](practical_bitwise_operations.md), as these can be incredibly useful for optimizing for BLAZINGLY FAST code.
+
+# Chapter 3, Section 3.9.3 - Data Alignment
+
+
+
 # Sources
 
 * [Computer Systems: A Programmer's Perspective](https://www.cs.sfu.ca/~ashriram/Courses/CS295/assets/books/CSAPP_2016.pdf)
