@@ -13,7 +13,7 @@ Claude's recommendations for navigating the textbook:
 * **Chapter 6, The Memory Hierarchy**. Explains why alignment and locality matter for performance.
 * **Section 9.9, Dynamic Memory Allocation**. This is the most relevant part of the book. It walks through building a malloc, including alignment, headers, and fragmentation, and an arena is a simplified version of the same ideas.
 
-# Representing and Manipulating Information
+# Chapter 2: Representing and Manipulating Information
 
 The following information comes from [Chapter 2 of Computer Systems: A Programmer's Perspective](https://www.cs.sfu.ca/~ashriram/Courses/CS295/assets/books/CSAPP_2016.pdf).
 
@@ -113,6 +113,24 @@ struct Arena {
 ```
 
 Here, we use an `unsigned char`, since this is the **conventional type for raw bytes**. It signals "untyped memory", not text.
+
+## Introduction to Boolean Algebra
+
+The simplest Boolean algebra is defined over the two-element set {0, 1}. Here are several operations in this algebra:
+
+![Boolean Algebra Table](images/boolean-alg-table.png)
+
+**Complement operator `~`**
+* Inverts every binary digit.
+
+**AND operator `&`**
+* Compares each bit at the same position in the integer and the resultant bit will be set (1) only and only if both the corresponding bits are set (1), otherwise it will be unset (0).
+
+**OR Operator `|`**
+* Compares each bit at the same position, and the result bit will be set (1) if any of the corresponding bits are set (1).
+
+**Bitwise XOR `^`**
+* Compares each bit at the same position, and the result bit will be set (1) if the corresponding bits differ, i.e., one should be 1 and the other should be 0.
 
 # Sources
 
