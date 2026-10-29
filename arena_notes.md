@@ -66,7 +66,38 @@ gcc -m64 prog.c
 
 will only run on a 64-bit machine.
 
+To avoid the vagaries of relying on "typical" sizes and different compiler settings, **ISO C99 introduces a class of data types where the data sizes are fixed regardless of compiler and machine settings**.
+
+Among these are data types `int32_t` and `int64_t`, having exactly 4 and 8 bytes, respectively. **Using fixed-size integer types is the best way for programmers to have close control over data representations**.
+
+**This also ties into GingerBill's use of the `uintptr_t` data type**. [`uintptr_t` is an unsigned integer type (defined in `<stdint.h>`)](https://www.tutorialpedia.org/blog/what-is-the-uintptr-t-data-type/#what-is-uintptr_t) that is capable of storing a data pointer. Its primary purpose is to provide a portable way to store the memory address of a pointer as an integer. It ensures cross-compatibility between different computer architectures since it is explicitly standardized to accommodate any pointer.
+
+This is why we use `uintptr_` in Bill's [`align_forward` function](https://www.gingerbill.org/article/2019/02/08/memory-allocation-strategies-002/#heading-2-5). We need the pointers to be standardized to ensure the code works on different hardware:
+
+```c
+uintptr_t align_forward(uintptr_t ptr, size_t align) {
+	uintptr_t p, a, modulo;
+
+	assert(is_power_of_two(align));
+
+	p = ptr;
+	a = (uintptr_t)align;
+	// Same as (p % a) but faster as 'a' is a power of two
+	modulo = p & (a-1);
+
+	if (modulo != 0) {
+		// If 'p' address is not aligned, push the address to the
+		// next value which is aligned
+		p += a - modulo;
+	}
+	return p;
+}
+```
+
+Without `uintptr_t`, we risk improperly aligning the memory. If we did not explicitly define this type, the memory alignment would be handled handled differently on different architecture. Remember that the size of a pointer can be different on different machines, thus implicating that memory alignment must also account for this.
+
 # Sources
 
 * [Computer Systems: A Programmer's Perspective](https://www.cs.sfu.ca/~ashriram/Courses/CS295/assets/books/CSAPP_2016.pdf)
 * [IBM - Data alignment: Straighten up and fly right](https://developer.ibm.com/articles/pa-dalign/)
+* [Ginger Bill's Memory Allocation Strategies](https://www.gingerbill.org/article/2019/02/08/memory-allocation-strategies-002/)
