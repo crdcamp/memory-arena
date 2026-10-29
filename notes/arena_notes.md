@@ -120,17 +120,23 @@ The simplest Boolean algebra is defined over the two-element set {0, 1}. Here ar
 
 ![Boolean Algebra Table](images/boolean-alg-table.png)
 
-**Complement operator `~`**
+**Bitwise NOT operator `~`**
 * Inverts every binary digit.
 
-**AND operator `&`**
+**Bitwise AND operator `&`**
 * Compares each bit at the same position in the integer and the resultant bit will be set (1) only and only if both the corresponding bits are set (1), otherwise it will be unset (0).
 
-**OR Operator `|`**
+**Bitwise OR Operator `|`**
 * Compares each bit at the same position, and the result bit will be set (1) if any of the corresponding bits are set (1).
 
-**Bitwise XOR `^`**
+**Bitwise Bitwise XOR `^`**
 * Compares each bit at the same position, and the result bit will be set (1) if the corresponding bits differ, i.e., one should be 1 and the other should be 0.
+
+We can extend the four Boolean operations to also operate on **bit vectors**, strings of zeros and ones of some fixed length *w*. We define the operations over bit vectors according to their applications to the matching elements of the arguments.
+
+As examples, consider the case where *w* = 4 and with arguments *a* = [0110] and *b* = [1100]. The four oprations would be as follows:
+
+![Bitwise Vector Operations Table](images/bitwise-vec-operations-table.png)
 
 # Sources
 
