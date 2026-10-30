@@ -237,3 +237,7 @@ clang -Wpadded -o example1 example1.c
 ```
 
 If desired, it's possible to prevent the comppiler from passing a struct using either `__attribute__((packed))` after a struct definition, `#pragma pack (1)` in front of a struct definition, or `-fpack-struct` as a compiler parameter.
+
+# [Chapter 9, Section 9.9: Dynamic Memory Allocation](https://www.cs.sfu.ca/~ashriram/Courses/CS295/assets/books/CSAPP_2016.pdf)
+
+A dynamic memory allocator maintains an area of a process's virtual memory known as the **heap**.
