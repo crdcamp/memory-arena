@@ -228,6 +228,12 @@ With the 9-byte allocation, it's not possible to satisfy the alignment requireme
 
 That way, the elements of `d` will have addresses `xd`, `xd` + 12, `xd` + 24, and `xd` + 36. As long as `xd` is a multiple of 4, all of the alignment restrictions will be satisfied.
 
-## [Alignment Continued](https://hps.vi4io.org/_media/teaching/wintersemester_2013_2014/epc-14-haase-svenhendrik-alignmentinc-paper.pdf)
+## [Alignment Continued - Alignment in C](https://hps.vi4io.org/_media/teaching/wintersemester_2013_2014/epc-14-haase-svenhendrik-alignmentinc-paper.pdf)
 
-Now let's show some more figures from a different source on how alignment works. **Note that all of these diagrams are in reference to 32-bit systems**. So, when considering applications for your system, just take each chunk and multiply it by 2.
+Some compilers support the warning flag `-Wpadded`, which generate warnings about padding found in `struct`s. If you're really trying to make your program BLAZINGLY FAST, then you can compile your program like so (This works for both `clang` and `gcc`):
+
+```bash
+clang -Wpadded -o example1 example1.c
+```
+
+If desired, it's possible to prevent the comppiler from passing a struct using either `__attribute__((packed))` after a struct definition, `#pragma pack (1)` in front of a struct definition, or `-fpack-struct` as a compiler parameter.
