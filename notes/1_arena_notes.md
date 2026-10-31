@@ -241,3 +241,37 @@ If desired, it's possible to prevent the comppiler from passing a struct using e
 # [Chapter 9, Section 9.9: Dynamic Memory Allocation](https://www.cs.sfu.ca/~ashriram/Courses/CS295/assets/books/CSAPP_2016.pdf)
 
 A dynamic memory allocator maintains an area of a process's virtual memory known as the **heap**.
+
+# [Chapter 9, Section 9.9: Dynamic Memory Allocation](https://www.cs.sfu.ca/~ashriram/Courses/CS295/assets/books/CSAPP_2016.pdf)
+
+While it's possible to use the low-level `mmap` and `munmap` functions to create and delete areas of virtual memory, C programmers typically find it more convenient to use a *dynamic memory allocator* when they need to acquire additional virtual memory at run time.
+
+A dynamic memory allocator maintains an area of a process's virtual memory known as the **heap**. We're just gonna assume that the heap is an area of *demand-zero* memory that begins immediately after the uninitialized data area and grows upward.
+
+Allocators come in two basic styles; **explicit allocators** and **implicit allocators**. They differ about which entity is responsible for freeing allocated blocks.
+
+**Explicit allocators** require the application to explicitly free any allocated blocks (`malloc`).
+
+**Implicit allocators**, on the other hand, require the allocator to detect when an allocated block is no longer being used by the program and then free the block (garbage collectors).
+
+### Fragmentation
+
+The primary cause of poor heap utilization is a phenomenon known as **fragmentation**, which **occurs when otherwise unused memory is not available to satisfy allocate requests**.
+
+There are two forms of fragmentation: **internal fragmentation** and **external fragmentation**.
+
+**Internal Fragmentation**
+
+This occurs when an allocated block is larger than they payload (the amount of bytes requested to be allocated to a block of memory). This might happen for a number of reasons. For example, the implementation of an allocator might impose a minimum size on allocated blocks that is greater than some requested payload. Or, the allocator might increase the block size in order to satisfy alignment constraints.
+
+The quantity of internal fragmentation is simply the sum of the differences between the sizes of the allocated blocks and their payloads.
+
+**External Fragmentation**
+
+This occurs when there *is* enough aggregate free memory to satisfy an allocate request, but no single free block is large enough to handle the request.
+
+In other words, it's when free memory is divided into small, non-contiguous blocks. The memory is scattered into a bunch of small, useless pieces. This is actually the idea you had of memory fragmentation when the phrase was first presented to you.
+
+External fragmentation is much more difficult to quantify than internal because it depends not only on the pattern of previous requests and the allocator implementation but also on the pattern of *future* requests.
+
+Essentially, external fragmentation is the primary reason you wanted to learn memory arenas in the first place!
