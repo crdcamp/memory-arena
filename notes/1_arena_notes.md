@@ -240,10 +240,6 @@ If desired, it's possible to prevent the comppiler from passing a struct using e
 
 # [Chapter 9, Section 9.9: Dynamic Memory Allocation](https://www.cs.sfu.ca/~ashriram/Courses/CS295/assets/books/CSAPP_2016.pdf)
 
-A dynamic memory allocator maintains an area of a process's virtual memory known as the **heap**.
-
-# [Chapter 9, Section 9.9: Dynamic Memory Allocation](https://www.cs.sfu.ca/~ashriram/Courses/CS295/assets/books/CSAPP_2016.pdf)
-
 While it's possible to use the low-level `mmap` and `munmap` functions to create and delete areas of virtual memory, C programmers typically find it more convenient to use a *dynamic memory allocator* when they need to acquire additional virtual memory at run time.
 
 A dynamic memory allocator maintains an area of a process's virtual memory known as the **heap**. We're just gonna assume that the heap is an area of *demand-zero* memory that begins immediately after the uninitialized data area and grows upward.
@@ -275,3 +271,5 @@ In other words, it's when free memory is divided into small, non-contiguous bloc
 External fragmentation is much more difficult to quantify than internal because it depends not only on the pattern of previous requests and the allocator implementation but also on the pattern of *future* requests.
 
 Essentially, external fragmentation is the primary reason you wanted to learn memory arenas in the first place!
+
+Well... I think that's some solid background. Let's move onto fully understanding [GingerBill's code](https://www.gingerbill.org/article/2019/02/08/memory-allocation-strategies-002/).
