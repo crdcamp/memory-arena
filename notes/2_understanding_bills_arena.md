@@ -129,4 +129,49 @@ As you hopefully have figured out by now, this function always accepts a pointer
 
 Again, "You are looking to find how many bytes forward you need to go in order for the memory address to be a multiple of a specified alignment". Without this alignment, you're increasing the number of times you access memory by about 2 (big nono).
 
-YIn summary, you'd rather take up a few more bytes of memory instead of accessing the same memory twice.
+In summary, you'd rather take up a few more bytes of memory instead of accessing the memory twice across different word chunks that reference the same information contained within that set of memory.
+
+Sounds inefficient, but consider what happens when you encounter external memory fragmentation when only using `malloc`!
+
+Anyway, now that we know how to align memory, that means we can update our original `arena_alloc` to support alignment properly and store the arena within a structure:
+
+```c
+typedef struct Arena Arena;
+struct Arena {
+    unsigned char *buf; // This is where the arena's memory begins (defined as a pointer)
+    size_t buf_len; // Total memory of the arena
+    size_t prev_offset; // This will be useful for later on
+    size_t curr_offset; // Where the arena's memory was last allocated
+};
+
+void *arena_alloc_align(Arena *a, size_t size, size_t align) {
+    // Align `curr_offset` forward to the specified alignment
+    uintptr_t curr_ptr = (uintptr_t)a->buf + (uintptr_t)a->curr_offset;
+    uintptr_t offset = align_forward(curr_ptr, align);
+    offset -= (uintptr_t)a->buf; // Change to relative offset
+
+    // Check to see if the backing memory has space left
+    if (offset + size <= a->buf_len) {
+        void *ptr = &a->buf[offset];
+        a->prev_offset = offset;
+        a->curr_offset = offset+size;
+
+        // Zero new memory by default
+        memset(ptr, 0, size);
+        return ptr;
+    }
+
+    // Return NULL if the arena is out of memory
+    return NULL;
+}
+
+#ifndef DEFAULT_ALIGNMENT
+#define DEFAULT_ALIGNMENT (2*sizeof(void *))
+#endif
+
+void *arena_alloc(Arena *a, size_t size) {
+    return arena_alloc_align(a, size, DEFAULT_ALIGNMENT);
+}
+```
+
+NOW... let's review what all of this means. With the prerequisites fulfilled in our notes, this really isn't as complicated as it initially seemed!
