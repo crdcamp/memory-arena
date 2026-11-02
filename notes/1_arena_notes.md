@@ -127,7 +127,7 @@ The simplest Boolean algebra is defined over the two-element set {0, 1}. Here ar
 **Bitwise OR Operator `|`**
 * Compares each bit at the same position, and the result bit will be set (1) if any of the corresponding bits are set (1).
 
-**Bitwise Bitwise XOR `^`**
+**Bitwise XOR `^`**
 * Compares each bit at the same position, and the result bit will be set (1) if the corresponding bits differ, i.e., one should be 1 and the other should be 0.
 
 We can extend the four Boolean operations to also operate on **bit vectors**, strings of zeros and ones of some fixed length *w*. We define the operations over bit vectors according to their applications to the matching elements of the arguments.
@@ -228,6 +228,8 @@ With the 9-byte allocation, it's not possible to satisfy the alignment requireme
 
 That way, the elements of `d` will have addresses `xd`, `xd` + 12, `xd` + 24, and `xd` + 36. As long as `xd` is a multiple of 4, all of the alignment restrictions will be satisfied.
 
+More information on structure alignment can be found in the "Structure Alignment" section of the [IBM Source](https://developer.ibm.com/articles/pa-dalign/).
+
 ## [Alignment Continued - Alignment in C](https://hps.vi4io.org/_media/teaching/wintersemester_2013_2014/epc-14-haase-svenhendrik-alignmentinc-paper.pdf)
 
 Some compilers support the warning flag `-Wpadded`, which generate warnings about padding found in `struct`s. If you're really trying to make your program BLAZINGLY FAST, then you can compile your program like so (This works for both `clang` and `gcc`):
@@ -236,7 +238,7 @@ Some compilers support the warning flag `-Wpadded`, which generate warnings abou
 clang -Wpadded -o example1 example1.c
 ```
 
-If desired, it's possible to prevent the comppiler from passing a struct using either `__attribute__((packed))` after a struct definition, `#pragma pack (1)` in front of a struct definition, or `-fpack-struct` as a compiler parameter.
+If desired, it's possible to prevent the compiler from passing a struct using either `__attribute__((packed))` after a struct definition, `#pragma pack (1)` in front of a struct definition, or `-fpack-struct` as a compiler parameter.
 
 # [Chapter 9, Section 9.9: Dynamic Memory Allocation](https://www.cs.sfu.ca/~ashriram/Courses/CS295/assets/books/CSAPP_2016.pdf)
 
