@@ -228,7 +228,7 @@ With the 9-byte allocation, it's not possible to satisfy the alignment requireme
 
 That way, the elements of `d` will have addresses `xd`, `xd` + 12, `xd` + 24, and `xd` + 36. As long as `xd` is a multiple of 4, all of the alignment restrictions will be satisfied.
 
-More information on structure alignment can be found in the "Structure Alignment" section of the [IBM Source](https://developer.ibm.com/articles/pa-dalign/).
+More information on structure alignment can be found in the "Structure Alignment" section of the 1[IBM Source](https://developer.ibm.com/articles/pa-dalign/).
 
 ## [Alignment Continued - Alignment in C](https://hps.vi4io.org/_media/teaching/wintersemester_2013_2014/epc-14-haase-svenhendrik-alignmentinc-paper.pdf)
 
@@ -274,4 +274,4 @@ External fragmentation is much more difficult to quantify than internal because 
 
 Essentially, external fragmentation is the primary reason you wanted to learn memory arenas in the first place!
 
-Well... I think that's some solid background. Let's move onto fully understanding [GingerBill's code](https://www.gingerbill.org/article/2019/02/08/memory-allocation-strategies-002/).
+Well... I think that's some solid background. Let's move onto fully understanding [GingerBill's code](https://www.gingerbill.org/article/2019/02/08/memory-allocation-strategies-002/) in [understanding_bills_arena.md](understanding_bills_arena.md).
