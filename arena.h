@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <assert.h>
 
 // We use `char` since it's ubiquitous as meaning "as block of memory" (8 bytes on your current Apple M4 architecture)
 typedef unsigned char byte;
@@ -16,5 +17,7 @@ typedef struct Arena {
 } Arena;
 
 bool is_power_of_two(uintptr_t x);
+uintptr_t align_forward(uintptr_t ptr, size_t align);
+
 
 #endif

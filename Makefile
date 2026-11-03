@@ -1,4 +1,4 @@
-CFLAGS = -Wall -Wextra -Wunused-parameter
+#CFLAGS = -Wall -Wextra -Wunused-parameter
 
 all: arena
 
