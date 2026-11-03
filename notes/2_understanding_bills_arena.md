@@ -68,7 +68,7 @@ Moreover, the assignment of `void *ptr = &arena_buffer[arena_offset]` finds wher
 
 Then, we use `memset` to ensure that the newly allocated memory isn't filled with garbage values, and instead fills the newly allocated memory with 0s.
 
-Finally, we return `ptr` so we know where memory was last allocated (in other words, the offset).
+Finally, we return `ptr` so we know where memory was last allocated.
 
 **There are two issues with this basic approach:**
 * You cannot reuse this procedure for different arenas.
@@ -138,10 +138,10 @@ Anyway, now that we know how to align memory, that means we can update our origi
 ```c
 typedef struct Arena Arena;
 struct Arena {
-    unsigned char *buf; // This is where the arena's memory begins (defined as a pointer)
+    unsigned char *buf; // This is where the arena's memory begins (note the pointer)
     size_t buf_len; // Total memory of the arena
-    size_t prev_offset; // This will be useful for later on
-    size_t curr_offset; // Where the arena's memory was last allocated
+    size_t prev_offset; // Where the arena's previous memory ends
+    size_t curr_offset; // Where the arena's current memory begins
 };
 
 void *arena_alloc_align(Arena *a, size_t size, size_t align) {
@@ -174,4 +174,30 @@ void *arena_alloc(Arena *a, size_t size) {
 }
 ```
 
-NOW... let's review what all of this means. With the prerequisites fulfilled in our notes, this really isn't as complicated as it initially seemed!
+NOW... let's review what all of this means. With the prerequisites fulfilled in our notes, this really isn't as complicated as it initially seemed. The meaning of the `Arena` struct's fields are already taken care of in the code's comments. So let's dive a bit deeper into their usage.
+
+We first want to define where the proposed amount of memory allocation begins (`curr_ptr`) and how much we need to align it (`offset`):
+
+```c
+uintptr_t curr_ptr = (uintptr_t)a->buf + (uintptr_t)a->curr_offset;
+offset -= (uintptr_t)a->buf; // Change to relative offset
+```
+
+Then we check (including the alignment) if that exceeds the memory allocated to the arena. If we're good, set a pointer to the address of the current buffer (again, including alignment). We then update the fields accordingly. Think similar to iterating through a linked list:
+
+```c
+// Check to see if the backing memory has space left
+if (offset + size <= a->buf_len) {
+    void *ptr = &a->buf[offset];
+    a->prev_offset = offset;
+    a->curr_offset = offset+size;
+
+    // Zero new memory by default
+    memset(ptr, 0, size);
+    return ptr;
+}
+```
+
+And *finally* we can find the alignment. This is done (I think) by getting the architecture of your hardware from a void pointer. I have no idea why.
+
+**THERE ARE LIKELY SOME MAJOR MISCONCEPTIONS IN THE ABOVE NOTES. REVISIT THEM**
