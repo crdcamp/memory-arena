@@ -9,9 +9,12 @@ int main(void) {
     // Some introductory examples to help me get started
     //first_examples();
     /////////////////////////////////////////////////////////////////////
+
+
+
+    /////////////////////////////////////////////////////////////////////
     // Using the introductory examples as a foundation, convert the
     // operations into reusable functions before moving onto alignment
-
     // First, we initialize an empty arena
     // Initialize with 0 and NULL values to avoid garbage values, although you'd think `arena_init` makes this unnecessary.
     Arena arena = {0};
@@ -36,6 +39,14 @@ int main(void) {
 
     arena_alloc(&arena, arena_half, 3);
     arena_print(arena, "HALF 3 FILL:");
+    /////////////////////////////////////////////////////////////////////
+
+
+
+    /////////////////////////////////////////////////////////////////////
+    // Now we can FINALLY start investigating how memory alignment works
+    // We'll also include a `free_arena` function, which involves simply resetting
+    // the offsets of the arena to 0
     /////////////////////////////////////////////////////////////////////
 
     return 0;
@@ -100,8 +111,6 @@ void first_examples() {
     arena_print(arena, "HALF FILLED ARENA:");
 }
 
-
-
 // First, we need an `arena_init` function to initialize an empty arena of
 // a desired size
 // Bill uses `void` instead of a `byte` for `backing_buffer`. I prefer `byte` due
@@ -128,10 +137,18 @@ void arena_alloc(Arena *arena, size_t size, int value) {
         }
         // Set the previous offset to the current offset
         arena->previous_offset = arena->current_offset;
-        // Set the current offset to the pointer
+        // Set the current offset to the space that was used
         arena->current_offset = arena->current_offset + size;
     }
 
     // Return if the proposed size exceeds the arena's available memory
+    printf("Not enough memory left in arena for %zu byte(s)\n", size);
+    return;
+}
+
+bool is_power_of_two(uintptr_t x);
+
+void arena_alloc_align(Arena *arena, size_t size, int value, size_t align) {
+    printf("`arena_alloc_align` not implemented\n");
     return;
 }

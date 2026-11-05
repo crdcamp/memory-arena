@@ -98,7 +98,7 @@ Without `uintptr_t`, we risk improperly aligning the memory. If we did not expli
 
 Most of the data types encode signed values, unless prefixed by the keyword, `unsigned`. The exception to this is data type `char`. Although most compilers and machines treat these as unsigned data, the C standard does not guarantee this.
 
-Instead, you should use the declaration `signed char` to guarantee a 1-byte signed value. In many contexts, however, the program's behavior is insensitive to whether data type `char` is signed or unsigned. The arena code we've been referring to is an example of one of these exceptions:
+Instead, you should use the declaration `signed char` to guarantee a 1-byte signed value. In many contexts, however, the program's behavior is insensitive to whether data type `char` is signed or unsigned. The arena code we've been referring to is an example of when you'd want to declare a variable as `unsigned`:
 
 ```c
 typedef struct Arena Arena;
@@ -181,6 +181,18 @@ This ensures that the data following it (in this case, the start of the jump tab
 Since each table entry is 8 bytes long, the successive elements will obey the 8-byte alignment restriction.
 
 However, I have a feeling that this doesn't require assembly code to configure. We'll have to revisit this subject when go through the rest of the [GingerBill's code](https://www.gingerbill.org/article/2019/02/08/memory-allocation-strategies-002/#heading-1-1).
+
+**Update to above claim:**
+
+Your guess was correct. We define the alignment value with the following header file code:
+
+```c
+#ifndef DEFAULT_ALIGNMENT
+#define DEFAULT_ALIGNMENT (2*sizeof(void *))
+#endif
+```
+
+However, I'm uncertain as to why we multiply `sizeof(void *)` by 2. This likely has something to do with accounting for data types larger than 8 bytes. You can adjust your arena code accordingly and remove the `2*` if you aren't dealing with data types larger than 8 bytes (I think, don't take that conclusion as a 100% correct answer). In the end, it's probably best to just trust the code of the guy who literally created his own coding language.
 
 For code involving structures, the compiler may need to insert gaps in the field allocation to ensure that each structure element satisfies its alignment requirement. The structure will than have some required alignment for its starting address.
 

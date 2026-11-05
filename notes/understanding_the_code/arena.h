@@ -1,6 +1,5 @@
 #include <stdio.h>
-#include <stdint.h>
-
+#include <stdbool.h>
 
 #ifndef ARENA_H
 #define ARENA_H
@@ -15,15 +14,21 @@ typedef unsigned char byte;
 typedef struct Arena {
     byte *buffer; // The memory address of where the arena begins (note the pointer)
     size_t buffer_length; // The total size of the arena in bytes
-    size_t previous_offset; // The memory address of where the arena's used memory previously ended (I believe this is so you can reset the arena to it's last used location)
+    size_t previous_offset; // The memory address of where the arena's used memory previously ended
     size_t current_offset; // The memory address of where the arena's used memory ends
 } Arena;
 
+// Introductory lessons
 void arena_print(Arena a, char *message);
 void first_examples();
+
+// Converting introductory lessons into functions
 void arena_init(Arena *arena, void *buffer, size_t buffer_len);
 void arena_alloc(Arena *arena, size_t size, int value);
 
+// Implementing memory alignment
+bool is_power_of_two(uintptr_t x);
+void arena_alloc_align(Arena *arena, size_t size, int value, size_t align);
 void *arena_free(Arena *arena);
 
 #endif
