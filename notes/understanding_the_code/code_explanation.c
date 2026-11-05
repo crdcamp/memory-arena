@@ -4,7 +4,10 @@
 #include "arena.h"
 
 int main(void) {
+    printf("----------------FIRST EXAMPLES----------------\n");
     first_examples();
+    printf("------------END OF FIRST EXAMPLES-------------\n");
+    printf("\n\n\n");
 
     return 0;
 }
@@ -66,10 +69,12 @@ void first_examples() {
     arena.previous_offset = arena.current_offset;
     arena.current_offset = arena_quarter + arena.current_offset;
     arena_print(arena, "HALF FILLED ARENA:");
+}
 
-    // Before moving onto alignment, let's see if we can convert these
-    // previous operations into functions
+// Before moving onto alignment, let's see if we can convert these
+// previous operations into functions
 
-    // First, we need an `arena_init` function
-    //
+// First, we need an `arena_init` function
+void arena_init(Arena *a, byte backing_buffer, size_t backing_buffer_size) {
+
 }

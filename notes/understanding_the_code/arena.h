@@ -20,6 +20,6 @@ typedef struct Arena {
 
 void arena_print(Arena a, char *message);
 void first_examples();
-void arena_init();
+void arena_init(Arena *a, byte backing_buffer, size_t backing_buffer_size);
 
 #endif
