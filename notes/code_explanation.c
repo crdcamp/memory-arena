@@ -20,20 +20,23 @@ typedef struct Arena {
 } Arena;
 
 void arena_print(Arena a) {
-    int backing_buffer_last_element = sizeof(&a.buffer)/sizeof(a.buffer[0]) - 1;
-
-    printf("Starting address of the arena (`buffer`): %p\n", a.buffer);
-    printf("Ending address of the arena:              %p\n", &a.buffer[backing_buffer_last_element]);
+    printf("Starting address of the arena:            %p\n", a.buffer);
+    printf("Ending address of the arena:              %p\n", a.buffer + a.buffer_length - 1);
     printf("Size of the arena:                        %zu byte(s)\n", a.buffer_length);
     printf("Previous offset:                          %zu\n", a.previous_offset);
     printf("Current offset:                           %zu\n", a.current_offset);
+    printf("Values contained in the arena:           ");
+    for (int i = 0; i < a.buffer_length; i++) {
+        printf(" %i", a.buffer[i]);
+    }
+    printf("\n");
 }
 
 int main(void) {
     // Let's begin by defining a pointer variable that indicates where the arena begins in memory
     // We define a backing buffer to give a start location for the arena to point to
     // As a result, we can also derive the arena's size by this backing buffer
-    byte backing_buffer[256];
+    byte backing_buffer[16] = {0}; // Initialize with 0s to avoid garbage values
 
     // Now let's create an example arena struct using `arena_start` and `arena_size`
     Arena arena = {0}; // Initialize an empty struct
@@ -46,6 +49,24 @@ int main(void) {
     arena.current_offset = 0;
 
     // Now let's take a look at the memory addresses of the arena in its current state
+    printf("INITIALIZED ARENA:\n");
+    arena_print(arena);
+    printf("\n");
+
+
+
+    // I think it's time to start playing around with the arena now.
+    // Let's begin by trying to manually fill let's say.... a quarter of the arena
+    // We'll keep it simple for now and fill it with 1s
+    int arena_quarter = arena.buffer_length / 4;
+    for (int i = 0; i < arena_quarter; i++) {
+        arena.buffer[i] = 1;
+    }
+
+    // Now let's update the current offset
+    arena.current_offset = arena_quarter;
+
+    printf("QUARTER FILL ARENA:\n");
     arena_print(arena);
 
     return 0;
