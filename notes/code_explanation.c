@@ -19,11 +19,14 @@ typedef struct Arena {
     size_t current_offset; // The memory address of where the arena's used memory ends
 } Arena;
 
-void arena_print(Arena *a) {
-    printf("Starting address of the arena (`buffer`): %p\n", a->buffer);
-    printf("Size of the arena (`buffer_length`):      %zu byte(s)\n", a->buffer_length);
-    printf("`previous_offset`:                        %zu byte(s)\n", a->previous_offset);
-    printf("`current_offset`:                         %zu byte(s)\n", a->current_offset);
+void arena_print(Arena a) {
+    int backing_buffer_last_element = sizeof(&a.buffer)/sizeof(a.buffer[0]) - 1;
+
+    printf("Starting address of the arena (`buffer`): %p\n", a.buffer);
+    printf("Ending address of the arena:              %p\n", &a.buffer[backing_buffer_last_element]);
+    printf("Size of the arena:                        %zu byte(s)\n", a.buffer_length);
+    printf("Previous offset:                          %zu\n", a.previous_offset);
+    printf("Current offset:                           %zu\n", a.current_offset);
 }
 
 int main(void) {
@@ -31,24 +34,16 @@ int main(void) {
     // We define a backing buffer to give a start location for the arena to point to
     // As a result, we can also derive the arena's size by this backing buffer
     byte backing_buffer[256];
-    byte *arena_start = backing_buffer;
-
-    // Now let's create an example length of bytes for the arena
-    // Remember that `size_t` is size in bytes
-    size_t arena_size = sizeof(backing_buffer);
-
-    // Obviously, there is no `previous_offset` or `current_offset`
-    // yet since we haven't assigned anything to the arena yet
-    // (or even actually created it yet)
 
     // Now let's create an example arena struct using `arena_start` and `arena_size`
-    Arena *arena = {0}; // Initialize an empty struct
-    arena->buffer = arena_start; // Define where the arena begins
-    arena->buffer_length = arena_size; // Define how large the arena is
+    Arena arena = {0}; // Initialize an empty struct
+    arena.buffer = backing_buffer; // Define where the arena begins
+    size_t backing_buffer_length = sizeof(backing_buffer);
+    arena.buffer_length = backing_buffer_length; // Define how large the arena is
 
     // Initialize the previous and current offset as 0 for now
-    arena->previous_offset = (size_t)arena_start;
-    arena->current_offset = (size_t)arena_start;
+    arena.previous_offset = 0;
+    arena.current_offset = 0;
 
     // Now let's take a look at the memory addresses of the arena in its current state
     arena_print(arena);
