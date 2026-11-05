@@ -140,13 +140,39 @@ void arena_alloc(Arena *arena, size_t size, int value) {
         // Set the current offset to the space that was used
         arena->current_offset = arena->current_offset + size;
     }
-
+    else {
+        printf("Not enough memory left in arena for %zu byte(s)\n", size);
+    }
     // Return if the proposed size exceeds the arena's available memory
-    printf("Not enough memory left in arena for %zu byte(s)\n", size);
     return;
 }
 
-bool is_power_of_two(uintptr_t x);
+bool is_power_of_two(uintptr_t x) {
+    return (x & (x-1)) == 0;
+}
+
+uintptr_t align_forward(uintptr_t ptr, size_t align) {
+    // We assign to these new values to avoid editing the
+    // original pointer and to cast types
+    uintptr_t p, a, modulo;
+
+    // Determine if the alignment is valid
+    // Might want to change this to something that isn't `assert()`
+    assert(is_power_of_two(align));
+
+    p = ptr;
+    a = align;
+    // Same as using `%`, but faster since a is a power of 2
+    modulo = p & (a-1);
+    // If there is a remainder, adjust the pointer forward to
+    // an aligned spot in memory using the difference between
+    // alignment and remainder
+    if (modulo != 0) {
+        p += a - modulo;
+    }
+
+    return p;
+}
 
 void arena_alloc_align(Arena *arena, size_t size, int value, size_t align) {
     printf("`arena_alloc_align` not implemented\n");
