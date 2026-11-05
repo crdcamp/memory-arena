@@ -19,7 +19,8 @@ typedef struct Arena {
     size_t current_offset; // The memory address of where the arena's used memory ends
 } Arena;
 
-void arena_print(Arena a) {
+void arena_print(Arena a, char *message) {
+    printf("%s\n", message);
     printf("Starting address of the arena:            %p\n", a.buffer);
     printf("Ending address of the arena:              %p\n", a.buffer + a.buffer_length - 1);
     printf("Size of the arena:                        %zu byte(s)\n", a.buffer_length);
@@ -29,7 +30,7 @@ void arena_print(Arena a) {
     for (int i = 0; i < a.buffer_length; i++) {
         printf(" %i", a.buffer[i]);
     }
-    printf("\n");
+    printf("\n\n");
 }
 
 int main(void) {
@@ -49,25 +50,32 @@ int main(void) {
     arena.current_offset = 0;
 
     // Now let's take a look at the memory addresses of the arena in its current state
-    printf("INITIALIZED ARENA:\n");
-    arena_print(arena);
-    printf("\n");
+    arena_print(arena, "INITIALIZED ARENA:");
 
 
 
     // I think it's time to start playing around with the arena now.
     // Let's begin by trying to manually fill let's say.... a quarter of the arena
     // We'll keep it simple for now and fill it with 1s
-    int arena_quarter = arena.buffer_length / 4;
-    for (int i = 0; i < arena_quarter; i++) {
+    size_t arena_quarter = arena.buffer_length / 4;
+    for (size_t i = 0; i < arena_quarter; i++) {
         arena.buffer[i] = 1;
     }
 
     // Now let's update the current offset
     arena.current_offset = arena_quarter;
+    arena_print(arena, "QUARTER FILLED ARENA:");
 
-    printf("QUARTER FILL ARENA:\n");
-    arena_print(arena);
+
+
+    // Finally, before moving onto memory alignment, let's fill another quarter
+    // of the values with 2, and update the previous offset
+    for (size_t i = arena.current_offset; i < arena_quarter + arena.current_offset; i++) {
+        arena.buffer[i] = 2;
+    }
+    arena.previous_offset = arena.current_offset;
+    arena.current_offset = arena_quarter + arena.current_offset;
+    arena_print(arena, "HALF FILLED ARENA:");
 
     return 0;
 }
