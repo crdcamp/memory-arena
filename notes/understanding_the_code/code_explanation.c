@@ -123,10 +123,7 @@ void arena_init(Arena *arena, void *buffer, size_t buffer_length) {
 // Allocate memory to the arena
 // I think this might be a bit messy, but it's a start
 void arena_alloc(Arena *arena, size_t size, int value) {
-    printf("Size: %zu\n", size);
     size_t usage = arena->current_offset + size;
-    printf("Size + current offset: %zu\n", usage);
-
     // First check if `size` is less than the size of the arena
     if (usage <= arena->buffer_length) {
         // Assign the value to each index in the proposed range
