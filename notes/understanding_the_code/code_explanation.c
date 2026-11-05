@@ -18,7 +18,6 @@ int main(void) {
 
     byte buffer[16]; // 16 bytes for simplicity
     size_t buffer_len = sizeof(buffer) / sizeof(buffer[0]);
-    printf("Buffer length: %zu\n", buffer_len);
 
     arena_init(&arena, buffer, buffer_len); // Initialize an empty arena with a size of 16 bytes
     arena_print(arena, "INITIALIZED ARENA:");
@@ -28,9 +27,6 @@ int main(void) {
     // with 2s, and the last half with 3s
     const size_t arena_quarter = arena.buffer_length / 4;
     const size_t arena_half = arena.buffer_length / 2;
-    printf("Arena size:   %zu\n", arena.buffer_length);
-    printf("Quarter size: %zu\n", arena_quarter);
-    printf("Half size:    %zu\n", arena_half);
 
     arena_alloc(&arena, arena_quarter, 1);
     arena_print(arena, "QUARTER 1 FILL:");
