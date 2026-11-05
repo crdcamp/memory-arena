@@ -22,7 +22,8 @@ typedef struct Arena {
 void arena_print(Arena a, char *message);
 void first_examples();
 void arena_init(Arena *arena, void *buffer, size_t buffer_len);
+void arena_alloc(Arena *arena, size_t size, int value);
 
-void arena_free(Arena *arena);
+void *arena_free(Arena *arena);
 
 #endif

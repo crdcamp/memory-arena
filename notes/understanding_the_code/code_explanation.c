@@ -7,16 +7,13 @@
 int main(void) {
     /////////////////////////////////////////////////////////////////////
     // Some introductory examples to help me get started
-    first_examples();
+    //first_examples();
     /////////////////////////////////////////////////////////////////////
     // Using the introductory examples as a foundation, convert the
     // operations into reusable functions before moving onto alignment
 
     // First, we initialize an empty arena
     // Initialize with 0 and NULL values to avoid garbage values, although you'd think `arena_init` makes this unnecessary.
-    // Make sure to test this above point later
-    // Note that this can also not be created as a pointer and instead be passed as `&a` to `arena_init` to create a pointer
-    // I think I prefer creating the arenas as pointers for now, but keep in mind function scopes and arena lifetimes when deciding on this
     Arena arena = {0};
 
     byte buffer[16]; // 16 bytes for simplicity
@@ -25,15 +22,24 @@ int main(void) {
 
     arena_init(&arena, buffer, buffer_len); // Initialize an empty arena with a size of 16 bytes
     arena_print(arena, "INITIALIZED ARENA:");
-    printf("Note: the arena is initialized with garbage values, since we only need to use memset when actually allocating the memory\n");
 
-    // // Now let's fill this arena with some basic integer arrays
-    // // We'll create two arrays that will fill a quarter of the arena,
-    // // and one that fills half
-    // size_t arena_quarter = sizeof(arena->buffer_length) / 4;
-    // size_t arena_half = sizeof(arena->buffer_length) / 2;
-    // printf("Quarter size: %zu\n", arena_quarter);
-    // printf("Half size: %zu\n", arena_half);
+    // Now let's fill this arena with some basic integer arrays
+    // We'll fill a quarter of the arena with 1s, another quarter
+    // with 2s, and the last half with 3s
+    const size_t arena_quarter = arena.buffer_length / 4;
+    const size_t arena_half = arena.buffer_length / 2;
+    printf("Arena size:   %zu\n", arena.buffer_length);
+    printf("Quarter size: %zu\n", arena_quarter);
+    printf("Half size:    %zu\n", arena_half);
+
+    arena_alloc(&arena, arena_quarter, 1);
+    arena_print(arena, "QUARTER 1 FILL:");
+
+    arena_alloc(&arena, arena_quarter, 2);
+    arena_print(arena, "QUARTER 2 FILL:");
+
+    arena_alloc(&arena, arena_half, 3);
+    arena_print(arena, "HALF 3 FILL:");
     /////////////////////////////////////////////////////////////////////
 
     return 0;
@@ -100,9 +106,6 @@ void first_examples() {
 
 
 
-// Before moving onto alignment, let's see if we can convert these
-// previous operations into functions
-
 // First, we need an `arena_init` function to initialize an empty arena of
 // a desired size
 // Bill uses `void` instead of a `byte` for `backing_buffer`. I prefer `byte` due
@@ -115,4 +118,25 @@ void arena_init(Arena *arena, void *buffer, size_t buffer_length) {
     // since an empty arena has no use for them
     arena->previous_offset = 0;
     arena->current_offset = 0;
+}
+
+// Allocate memory to the arena
+// I think this might be a bit messy, but it's a start
+void arena_alloc(Arena *arena, size_t size, int value) {
+    printf("Size: %zu\n", size);
+    size_t usage = arena->current_offset + size;
+    printf("Size + current offset: %zu\n", usage);
+
+    // First check if `size` is less than the size of the arena
+    if (usage <= arena->buffer_length) {
+        // Set the values up to the pointer to the desired value
+        memset(&arena->buffer[usage], value, size);
+        // Set the previous offset to the current offset
+        arena->previous_offset = arena->current_offset;
+        // Set the current offset to the pointer
+        arena->current_offset = arena->current_offset + size;
+    }
+
+    // Return if the proposed size exceeds the arena's available memory
+    return;
 }
