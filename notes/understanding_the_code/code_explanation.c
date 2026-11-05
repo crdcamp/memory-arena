@@ -15,10 +15,15 @@ int main(void) {
     // operations into reusable functions before moving onto alignment
 
     // First, we initialize an empty arena
-    Arena arena = {0};
-    byte backing_buffer[16] = {0};
-    size_t backing_buffer_size = sizeof(backing_buffer);
-    arena = arena_init(&arena, *backing_buffer, backing_buffer_size);
+    // Initialize with 0 and NULL values to avoid garbage values, although you'd think `arena_init` makes this unnecessary.
+    // Make sure to test this above point later
+    // Note that this can also not be created as a pointer and instead be passed as `&a` to `arena_init` to create a pointer
+    // I think I prefer creating the arenas as pointers for now, but keep in mind function
+    // scopes and arena lifetimes when deciding on this
+    Arena *arena = {0};
+
+    byte arena_size[16] = {0}; // 16 bytes for simplicity
+    arena_init(arena, arena_size);
     /////////////////////////////////////////////////////////////////////
 
     return 0;
@@ -83,10 +88,29 @@ void first_examples() {
     arena_print(arena, "HALF FILLED ARENA:");
 }
 
+
+
 // Before moving onto alignment, let's see if we can convert these
 // previous operations into functions
 
-// First, we need an `arena_init` function
-Arena arena_init(Arena *a, byte backing_buffer, size_t backing_buffer_size) {
+// First, we need an `arena_init` function to initialize an empty arena of
+// a desired size
+// Bill uses `void` instead of `byte` for `backing_buffer`. I prefer `byte` due
+// to ensuring type consistency, but I have a feeling Bill's use of `void` is more correct
+// I also removed the `backing_buffer_size` parameter and instead let the function
+// handle it. Again, Bill probably didn't do this for a reason, but we'll see
+// if it causes issues later
+// Finally, I changed `backing_buffer` to `size` cause that seems a bit more
+// semantically understandable to me
 
+// These changes I've made could potentially be incorrect for further use,
+// but I think it's important to encounter issues with them if they cause any
+void arena_init(Arena *arena, byte *size) {
+    // Initialize the buffer size and buffer length
+    arena->buffer = size;
+    arena->buffer_length = sizeof(size);
+    // Set the current and previous offsets to 0, as they
+    // have no use when considering an empty arena
+    arena->previous_offset = 0;
+    arena->current_offset = 0;
 }
