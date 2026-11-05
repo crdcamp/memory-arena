@@ -4,10 +4,22 @@
 #include "arena.h"
 
 int main(void) {
+    /////////////////////////////////////////////////////////////////////
+    // Some introductory examples to help me get started
     printf("----------------FIRST EXAMPLES----------------\n");
     first_examples();
     printf("------------END OF FIRST EXAMPLES-------------\n");
     printf("\n\n\n");
+    /////////////////////////////////////////////////////////////////////
+    // Using the introductory examples as a foundation, convert the
+    // operations into reusable functions before moving onto alignment
+
+    // First, we initialize an empty arena
+    Arena arena = {0};
+    byte backing_buffer[16] = {0};
+    size_t backing_buffer_size = sizeof(backing_buffer);
+    arena = arena_init(&arena, *backing_buffer, backing_buffer_size);
+    /////////////////////////////////////////////////////////////////////
 
     return 0;
 }
@@ -75,6 +87,6 @@ void first_examples() {
 // previous operations into functions
 
 // First, we need an `arena_init` function
-void arena_init(Arena *a, byte backing_buffer, size_t backing_buffer_size) {
+Arena arena_init(Arena *a, byte backing_buffer, size_t backing_buffer_size) {
 
 }

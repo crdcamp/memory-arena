@@ -18,6 +18,6 @@ typedef struct Arena {
 
 bool is_power_of_two(uintptr_t x);
 uintptr_t align_forward(uintptr_t ptr, size_t align);
-void *arena_alloc_align(Arena arena, size_t size, size_t align);
+void *arena_alloc_align(Arena *arena, size_t size, size_t align);
 
 #endif
