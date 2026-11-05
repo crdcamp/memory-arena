@@ -1,15 +1,13 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 
 #include "arena.h"
 
 int main(void) {
     /////////////////////////////////////////////////////////////////////
     // Some introductory examples to help me get started
-    printf("----------------FIRST EXAMPLES----------------\n");
     first_examples();
-    printf("------------END OF FIRST EXAMPLES-------------\n");
-    printf("\n\n\n");
     /////////////////////////////////////////////////////////////////////
     // Using the introductory examples as a foundation, convert the
     // operations into reusable functions before moving onto alignment
@@ -18,12 +16,24 @@ int main(void) {
     // Initialize with 0 and NULL values to avoid garbage values, although you'd think `arena_init` makes this unnecessary.
     // Make sure to test this above point later
     // Note that this can also not be created as a pointer and instead be passed as `&a` to `arena_init` to create a pointer
-    // I think I prefer creating the arenas as pointers for now, but keep in mind function
-    // scopes and arena lifetimes when deciding on this
-    Arena *arena = {0};
+    // I think I prefer creating the arenas as pointers for now, but keep in mind function scopes and arena lifetimes when deciding on this
+    Arena arena = {0};
 
-    byte arena_size[16] = {0}; // 16 bytes for simplicity
-    arena_init(arena, arena_size);
+    byte buffer[16]; // 16 bytes for simplicity
+    size_t buffer_len = sizeof(buffer) / sizeof(buffer[0]);
+    printf("Buffer length: %zu\n", buffer_len);
+
+    arena_init(&arena, buffer, buffer_len); // Initialize an empty arena with a size of 16 bytes
+    arena_print(arena, "INITIALIZED ARENA:");
+    printf("Note: the arena is initialized with garbage values, since we only need to use memset when actually allocating the memory\n");
+
+    // // Now let's fill this arena with some basic integer arrays
+    // // We'll create two arrays that will fill a quarter of the arena,
+    // // and one that fills half
+    // size_t arena_quarter = sizeof(arena->buffer_length) / 4;
+    // size_t arena_half = sizeof(arena->buffer_length) / 2;
+    // printf("Quarter size: %zu\n", arena_quarter);
+    // printf("Half size: %zu\n", arena_half);
     /////////////////////////////////////////////////////////////////////
 
     return 0;
@@ -95,22 +105,14 @@ void first_examples() {
 
 // First, we need an `arena_init` function to initialize an empty arena of
 // a desired size
-// Bill uses `void` instead of `byte` for `backing_buffer`. I prefer `byte` due
+// Bill uses `void` instead of a `byte` for `backing_buffer`. I prefer `byte` due
 // to ensuring type consistency, but I have a feeling Bill's use of `void` is more correct
-// I also removed the `backing_buffer_size` parameter and instead let the function
-// handle it. Again, Bill probably didn't do this for a reason, but we'll see
-// if it causes issues later
-// Finally, I changed `backing_buffer` to `size` cause that seems a bit more
-// semantically understandable to me
-
-// These changes I've made could potentially be incorrect for further use,
-// but I think it's important to encounter issues with them if they cause any
-void arena_init(Arena *arena, byte *size) {
+void arena_init(Arena *arena, void *buffer, size_t buffer_length) {
     // Initialize the buffer size and buffer length
-    arena->buffer = size;
-    arena->buffer_length = sizeof(size);
-    // Set the current and previous offsets to 0, as they
-    // have no use when considering an empty arena
+    arena->buffer = buffer;
+    arena->buffer_length = buffer_length;
+    // Initialize the current and previous offset as 0,
+    // since an empty arena has no use for them
     arena->previous_offset = 0;
     arena->current_offset = 0;
 }

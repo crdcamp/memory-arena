@@ -2,7 +2,8 @@
 #include <stdint.h>
 
 
-#ifndef DEFAULT_ALIGNMENT
+#ifndef ARENA_H
+#define ARENA_H
 // We multiply by 2 to help ensure that all data types (including the larger ones)
 // are able to be stored in the arena
 // I believe you can adjust this value by removing the *2 if your data types
@@ -20,7 +21,7 @@ typedef struct Arena {
 
 void arena_print(Arena a, char *message);
 void first_examples();
-void arena_init(Arena *arena, byte *size);
+void arena_init(Arena *arena, void *buffer, size_t buffer_len);
 
 void arena_free(Arena *arena);
 
