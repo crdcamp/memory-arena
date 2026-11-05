@@ -129,8 +129,10 @@ void arena_alloc(Arena *arena, size_t size, int value) {
 
     // First check if `size` is less than the size of the arena
     if (usage <= arena->buffer_length) {
-        // Set the values up to the pointer to the desired value
-        memset(&arena->buffer[usage], value, size);
+        // Assign the value to each index in the proposed range
+        for (size_t i = arena->current_offset; i < usage; i++) {
+            arena->buffer[i] = value;
+        }
         // Set the previous offset to the current offset
         arena->previous_offset = arena->current_offset;
         // Set the current offset to the pointer
