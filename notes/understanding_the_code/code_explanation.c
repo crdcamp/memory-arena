@@ -39,14 +39,16 @@ int main(void) {
 
     arena_alloc(&arena, arena_half, 3);
     arena_print(arena, "HALF 3 FILL:");
-    /////////////////////////////////////////////////////////////////////
 
+    arena_free(&arena);
+    /////////////////////////////////////////////////////////////////////
 
 
     /////////////////////////////////////////////////////////////////////
     // Now we can FINALLY start investigating how memory alignment works
     // We'll also include a `free_arena` function, which involves simply resetting
     // the offsets of the arena to 0
+    arena_alloc_align(&arena, buffer)
     /////////////////////////////////////////////////////////////////////
 
     return 0;
@@ -56,7 +58,7 @@ void arena_print(Arena a, char *message) {
     printf("%s\n", message);
     printf("Starting address of the arena: %p\n", a.buffer);
     printf("Ending address of the arena:   %p\n", a.buffer + a.buffer_length - 1);
-    printf("Size of the arena:             %zu byte(s)\n", a.buffer_length);
+    printf("Size of the arena:             %zu byte(s)\n", sizeof(a.buffer));
     printf("Previous offset:               %zu byte(s)\n", a.previous_offset);
     printf("Current offset:                %zu byte(s)\n", a.current_offset);
     printf("Values contained in the arena:");
@@ -127,24 +129,30 @@ void arena_init(Arena *arena, void *buffer, size_t buffer_length) {
 
 // Allocate memory to the arena
 // I think this might be a bit messy, but it's a start
-void arena_alloc(Arena *arena, size_t size, int value) {
-    size_t usage = arena->current_offset + size;
-    // First check if `size` is less than the size of the arena
-    if (usage <= arena->buffer_length) {
-        // Assign the value to each index in the proposed range
-        for (size_t i = arena->current_offset; i < usage; i++) {
-            arena->buffer[i] = value;
-        }
-        // Set the previous offset to the current offset
+// THIS IS INCORRECT USAGE ANYWAY. YOU SHOULD BE RETURNING A POINTER
+void *arena_alloc(Arena *arena, size_t size) {
+    // Check if the arena has enough available memory
+    if (arena->current_offset + size <= arena->buffer_length) {
+        // Set a pointer to where the new allocation begins
+        void *ptr = &arena->buffer[arena->current_offset];
+        // Set new memory to 0 by default
+        // We use `ptr` without adding `size` to it because `memset` already handles that for us
+        memset(ptr, 0, size);
+        // Set previous offset to current offset
         arena->previous_offset = arena->current_offset;
-        // Set the current offset to the space that was used
+        // Set the current offset to the end of the newly allocated memory
         arena->current_offset = arena->current_offset + size;
+        // Return the new start point for memory
+        return ptr;
     }
-    else {
-        printf("Not enough memory left in arena for %zu byte(s)\n", size);
-    }
-    // Return if the proposed size exceeds the arena's available memory
-    return;
+
+    // If there isn't enough space left in the arena, return NULL
+    return NULL;
+}
+
+void arena_free(Arena *arena) {
+    arena->current_offset = 0;
+    arena->previous_offset = 0;
 }
 
 bool is_power_of_two(uintptr_t x) {
@@ -174,7 +182,26 @@ uintptr_t align_forward(uintptr_t ptr, size_t align) {
     return p;
 }
 
-void arena_alloc_align(Arena *arena, size_t size, int value, size_t align) {
-    printf("`arena_alloc_align` not implemented\n");
+void arena_alloc_align(Arena *arena, size_t size, size_t align) {
+    // Align the pointer forward to the specified alignment
+
+    // Set a pointer to the arena's current offset
+    uintptr_t curr_ptr = (uintptr_t)arena->buffer + arena->current_offset;
+    printf("`curr_ptr`: %p\n", &curr_ptr);
+    // Align the current offset forward to an aligned location
+    uintptr_t offset = align_forward(curr_ptr, align);
+    printf("`offset` prior to subtration: %p\n", &offset);
+
+    // I still don't understand why we do this since I thought the above
+    // line put us right where we need to be in the arena
+    // Hopefully this makes sense one day... for now I have no idea
+    offset -= (uintptr_t)arena->buffer;
+    printf("`offset` after subtraction: %p\n", &offset);
+
+    // Check to see if backing memory has space left
+    // if (offset+size <= arena->buffer_length) {
+
+    // }
+
     return;
 }

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdbool.h>
 #include <assert.h>
 
@@ -25,12 +26,12 @@ void first_examples();
 
 // Converting introductory lessons into functions
 void arena_init(Arena *arena, void *buffer, size_t buffer_len);
-void arena_alloc(Arena *arena, size_t size, int value);
+void *arena_alloc(Arena *arena, size_t size);
 
 // Implementing memory alignment
 bool is_power_of_two(uintptr_t x);
 uintptr_t align_forward(uintptr_t ptr, size_t align);
-void arena_alloc_align(Arena *arena, size_t size, int value, size_t align);
-void *arena_free(Arena *arena);
+void arena_free(Arena *arena);
+void arena_alloc_align(Arena *arena, size_t size, size_t align);
 
 #endif
