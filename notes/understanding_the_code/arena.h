@@ -21,7 +21,7 @@ typedef struct Arena {
 } Arena;
 
 // Introductory lessons
-void arena_print(Arena a, char *message);
+void arena_print(Arena *a, char *message);
 void first_examples();
 
 // Converting introductory lessons into functions

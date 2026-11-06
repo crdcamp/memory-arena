@@ -19,28 +19,60 @@ int main(void) {
     // Initialize with 0 and NULL values to avoid garbage values, although you'd think `arena_init` makes this unnecessary.
     Arena arena = {0};
 
-    byte buffer[16]; // 16 bytes for simplicity
-    size_t buffer_len = sizeof(buffer) / sizeof(buffer[0]);
+    // Define some arrays for computing the arena's size
+    int quarter_ones[4];
+    int quarter_twos[4];
+    int half_threes[8];
+    size_t arena_size = sizeof(quarter_ones) + sizeof(quarter_twos) + sizeof(half_threes);
 
-    arena_init(&arena, buffer, buffer_len); // Initialize an empty arena with a size of 16 bytes
-    arena_print(arena, "INITIALIZED ARENA:");
+    byte buffer[arena_size];
+
+    printf("Size of `arena_size`: %zu bytes\n", arena_size);
+    printf("Size of `buffer`: %zu bytes\n", sizeof(buffer));
+
+    size_t buffer_length = sizeof(buffer) / sizeof(buffer[0]);
+
+    // Initialize
+    arena_init(&arena, buffer, buffer_length); // Initialize an empty arena with a size of 16 bytes
+    arena_print(&arena, "INITIALIZED ARENA:");
+
 
     // Now let's fill this arena with some basic integer arrays
     // We'll fill a quarter of the arena with 1s, another quarter
     // with 2s, and the last half with 3s
-    const size_t arena_quarter = arena.buffer_length / 4;
-    const size_t arena_half = arena.buffer_length / 2;
+    int *ones = arena_alloc(&arena, sizeof(buffer) / 4);
+    if (ones) {
+        for (size_t i = 0; i < sizeof(quarter_ones) / sizeof(quarter_ones[0]); i++) {
+            ones[i] = 1;
+        }
+    }
+    arena_print(&arena, "ONES:");
 
-    arena_alloc(&arena, arena_quarter, 1);
-    arena_print(arena, "QUARTER 1 FILL:");
+    int *twos = arena_alloc(&arena, sizeof(buffer) / 4);
+    if (twos) {
+        for (size_t i = 0; i < sizeof(quarter_twos) / sizeof(quarter_twos[0]); i++) {
+            twos[i] = 2;
+        }
+    }
+    arena_print(&arena, "TWOS:");
 
-    arena_alloc(&arena, arena_quarter, 2);
-    arena_print(arena, "QUARTER 2 FILL:");
-
-    arena_alloc(&arena, arena_half, 3);
-    arena_print(arena, "HALF 3 FILL:");
+    int *threes = arena_alloc(&arena, sizeof(buffer) / 2);
+    if (threes) {
+        for (size_t i = 0; i < sizeof(half_threes) / sizeof(half_threes[0]); i++) {
+            threes[i] = 3;
+        }
+    }
+    arena_print(&arena, "THREES:");
 
     arena_free(&arena);
+
+    // Now let's quickly print the ones array
+    printf("Quick check for ones values:");
+    for (size_t i = 0; i < sizeof(quarter_ones) / sizeof(quarter_ones[0]); i++) {
+        printf(" %i", ones[i]);
+    }
+    printf("\n");
+
     /////////////////////////////////////////////////////////////////////
 
 
@@ -48,23 +80,18 @@ int main(void) {
     // Now we can FINALLY start investigating how memory alignment works
     // We'll also include a `free_arena` function, which involves simply resetting
     // the offsets of the arena to 0
-    arena_alloc_align(&arena, buffer)
     /////////////////////////////////////////////////////////////////////
 
     return 0;
 }
 
-void arena_print(Arena a, char *message) {
+void arena_print(Arena *a, char *message) {
     printf("%s\n", message);
-    printf("Starting address of the arena: %p\n", a.buffer);
-    printf("Ending address of the arena:   %p\n", a.buffer + a.buffer_length - 1);
-    printf("Size of the arena:             %zu byte(s)\n", sizeof(a.buffer));
-    printf("Previous offset:               %zu byte(s)\n", a.previous_offset);
-    printf("Current offset:                %zu byte(s)\n", a.current_offset);
-    printf("Values contained in the arena:");
-    for (int i = 0; i < a.buffer_length; i++) {
-        printf(" %i,", a.buffer[i]);
-    }
+    printf("Starting address of the arena: %p\n", a->buffer);
+    printf("Ending address of the arena:   %p\n", a->buffer + a->buffer_length - 1);
+    printf("Size of the arena:             %zu byte(s)\n", a->buffer_length);
+    printf("Previous offset:               %zu byte(s)\n", a->previous_offset);
+    printf("Current offset:                %zu byte(s)\n", a->current_offset);
     printf("\n\n");
 }
 
@@ -85,7 +112,7 @@ void first_examples() {
     arena.current_offset = 0;
 
     // Now let's take a look at the memory addresses of the arena in its current state
-    arena_print(arena, "INITIALIZED ARENA:");
+    arena_print(&arena, "INITIALIZED ARENA:");
 
 
 
@@ -99,7 +126,7 @@ void first_examples() {
 
     // Now let's update the current offset
     arena.current_offset = arena_quarter;
-    arena_print(arena, "QUARTER FILLED ARENA:");
+    arena_print(&arena, "QUARTER FILLED ARENA:");
 
 
 
@@ -110,7 +137,7 @@ void first_examples() {
     }
     arena.previous_offset = arena.current_offset;
     arena.current_offset = arena_quarter + arena.current_offset;
-    arena_print(arena, "HALF FILLED ARENA:");
+    arena_print(&arena, "HALF FILLED ARENA:");
 }
 
 // First, we need an `arena_init` function to initialize an empty arena of
@@ -131,18 +158,16 @@ void arena_init(Arena *arena, void *buffer, size_t buffer_length) {
 // I think this might be a bit messy, but it's a start
 // THIS IS INCORRECT USAGE ANYWAY. YOU SHOULD BE RETURNING A POINTER
 void *arena_alloc(Arena *arena, size_t size) {
+    // TODO: Convert to an overflow-safe check
     // Check if the arena has enough available memory
     if (arena->current_offset + size <= arena->buffer_length) {
         // Set a pointer to where the new allocation begins
         void *ptr = &arena->buffer[arena->current_offset];
-        // Set new memory to 0 by default
-        // We use `ptr` without adding `size` to it because `memset` already handles that for us
-        memset(ptr, 0, size);
         // Set previous offset to current offset
         arena->previous_offset = arena->current_offset;
         // Set the current offset to the end of the newly allocated memory
         arena->current_offset = arena->current_offset + size;
-        // Return the new start point for memory
+        // Return the new start point for storing memory
         return ptr;
     }
 
@@ -182,26 +207,26 @@ uintptr_t align_forward(uintptr_t ptr, size_t align) {
     return p;
 }
 
-void arena_alloc_align(Arena *arena, size_t size, size_t align) {
-    // Align the pointer forward to the specified alignment
+// void arena_alloc_align(Arena *arena, size_t size, size_t align) {
+//     // Align the pointer forward to the specified alignment
 
-    // Set a pointer to the arena's current offset
-    uintptr_t curr_ptr = (uintptr_t)arena->buffer + arena->current_offset;
-    printf("`curr_ptr`: %p\n", &curr_ptr);
-    // Align the current offset forward to an aligned location
-    uintptr_t offset = align_forward(curr_ptr, align);
-    printf("`offset` prior to subtration: %p\n", &offset);
+//     // Set a pointer to the arena's current offset
+//     uintptr_t curr_ptr = (uintptr_t)arena->buffer + arena->current_offset;
+//     printf("`curr_ptr`: %p\n", &curr_ptr);
+//     // Align the current offset forward to an aligned location
+//     uintptr_t offset = align_forward(curr_ptr, align);
+//     printf("`offset` prior to subtration: %p\n", &offset);
 
-    // I still don't understand why we do this since I thought the above
-    // line put us right where we need to be in the arena
-    // Hopefully this makes sense one day... for now I have no idea
-    offset -= (uintptr_t)arena->buffer;
-    printf("`offset` after subtraction: %p\n", &offset);
+//     // I still don't understand why we do this since I thought the above
+//     // line put us right where we need to be in the arena
+//     // Hopefully this makes sense one day... for now I have no idea
+//     offset -= (uintptr_t)arena->buffer;
+//     printf("`offset` after subtraction: %p\n", &offset);
 
-    // Check to see if backing memory has space left
-    // if (offset+size <= arena->buffer_length) {
+//     // Check to see if backing memory has space left
+//     // if (offset+size <= arena->buffer_length) {
 
-    // }
+//     // }
 
-    return;
-}
+//     return;
+// }
