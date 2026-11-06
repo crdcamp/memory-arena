@@ -218,17 +218,13 @@ void *arena_alloc_align(Arena *arena, size_t size, size_t align) {
     // the arena's current offset, we now need to subtract the buffer's
     // location to find where the relative offset should be
 
-    // align_forward returned an absolute address. Subtract the buffer's
-    // address to convert it into an index relative to the buffer start,
-    // which is the unit that current_offset, previous_offset, and
-    // buffer[...] all use.
-
     // Think about it like this:
     // curr_ptr = buffer + current_offset
     // offset = curr_ptr + padding
     // offset - buffer = current offset + padding
     // current_offset is already accounted for, so that's why we subtract the buffer!
-    offset -= (uintptr_t)arena->buffer; // Change to relative offset
+    // It FINALLY makes sense!!!
+    offset -= (uintptr_t)arena->buffer; // Change to relative offset (subtracting `buffer` takes us to where `current_offset` is)
     // Check to see if backing memory has space left
     if (offset+size <= arena->buffer_length) {
         // Set a pointer to where the new allocation begins
@@ -243,4 +239,9 @@ void *arena_alloc_align(Arena *arena, size_t size, size_t align) {
 
     // If there's not enough memory left to allocate, return NULL;
     return NULL;
+}
+
+// We'll return to resizing after some practice implementation
+void *arena_resize_align(Arena *arena, void *old_memory, size_t old_size, size_t new_size, size_t align) {
+ return NULL;
 }
