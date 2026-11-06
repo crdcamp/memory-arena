@@ -16,8 +16,8 @@ typedef unsigned char byte;
 typedef struct Arena {
     byte *buffer; // The memory address of where the arena begins (note the pointer)
     size_t buffer_length; // The total size of the arena in bytes
-    size_t previous_offset; // The memory address of where the arena's used memory previously ended
-    size_t current_offset; // The memory address of where the arena's used memory ends
+    size_t previous_offset; // The memory address of where the arena's allocated memory previously ended
+    size_t current_offset; // The memory address of where the arena's allocated memory ends
 } Arena;
 
 // Introductory lessons
@@ -32,6 +32,7 @@ void *arena_alloc(Arena *arena, size_t size);
 bool is_power_of_two(uintptr_t x);
 uintptr_t align_forward(uintptr_t ptr, size_t align);
 void arena_free(Arena *arena);
-void arena_alloc_align(Arena *arena, size_t size, size_t align);
+void *arena_alloc_align(Arena *arena, size_t size, size_t align);
+//void *arena_resize()
 
 #endif

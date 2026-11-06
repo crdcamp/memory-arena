@@ -207,26 +207,39 @@ uintptr_t align_forward(uintptr_t ptr, size_t align) {
     return p;
 }
 
-// void arena_alloc_align(Arena *arena, size_t size, size_t align) {
-//     // Align the pointer forward to the specified alignment
+void *arena_alloc_align(Arena *arena, size_t size, size_t align) {
+    // Align the pointer forward to the specified alignment
+    // Set a pointer to the arena's current offset
+    uintptr_t curr_ptr = (uintptr_t)arena->buffer + arena->current_offset;
+    // Align the current offset forward to an aligned location
+    uintptr_t offset = align_forward(curr_ptr, align);
 
-//     // Set a pointer to the arena's current offset
-//     uintptr_t curr_ptr = (uintptr_t)arena->buffer + arena->current_offset;
-//     printf("`curr_ptr`: %p\n", &curr_ptr);
-//     // Align the current offset forward to an aligned location
-//     uintptr_t offset = align_forward(curr_ptr, align);
-//     printf("`offset` prior to subtration: %p\n", &offset);
+    // Now that we've set the "offset" to an aligned location at or after
+    // the arena's current offset, we now need to subtract the buffer's
+    // location to find where the relative offset should be
 
-//     // I still don't understand why we do this since I thought the above
-//     // line put us right where we need to be in the arena
-//     // Hopefully this makes sense one day... for now I have no idea
-//     offset -= (uintptr_t)arena->buffer;
-//     printf("`offset` after subtraction: %p\n", &offset);
+    // align_forward returned an absolute address. Subtract the buffer's
+    // address to convert it into an index relative to the buffer start,
+    // which is the unit that current_offset, previous_offset, and
+    // buffer[...] all use.
 
-//     // Check to see if backing memory has space left
-//     // if (offset+size <= arena->buffer_length) {
+    // Think about it like this:
+    // curr_ptr = buffer + current_offset
+    // offset = curr_ptr + padding
+    // offset - buffer = current offset + padding
+    offset -= (uintptr_t)arena->buffer; // Change to relative offset
+    // Check to see if backing memory has space left
+    if (offset+size <= arena->buffer_length) {
+        // Set a pointer to where the new allocation begins
+        void *ptr = &arena->buffer[offset];
+        // Set the previous offset to the new offset
+        arena->previous_offset = offset;
+        // Set the current offset to the end of the newly allocated memory
+        arena->current_offset = offset+size;
+        // Return a pointer that marks where the newly allocated memory begins
+        return ptr;
+    }
 
-//     // }
-
-//     return;
-// }
+    // If there's not enough memory left to allocate, return NULL;
+    return NULL;
+}
