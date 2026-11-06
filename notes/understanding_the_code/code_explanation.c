@@ -241,7 +241,33 @@ void *arena_alloc_align(Arena *arena, size_t size, size_t align) {
     return NULL;
 }
 
-// We'll return to resizing after some practice implementation
 void *arena_resize_align(Arena *arena, void *old_memory, size_t old_size, size_t new_size, size_t align) {
- return NULL;
+    byte *old_mem = (byte *)old_memory;
+
+    assert(is_power_of_two(align));
+
+    if (old_mem == NULL || old_size == 0) {
+        return arena_alloc_align(arena, new_size, align);
+    }
+    else if (arena->buffer <= old_mem && old_mem < arena->buffer + arena->buffer_length) {
+        // Last allocation: resize in place by moving the end of used memory
+        if (arena->buffer + arena->previous_offset == old_mem) {
+            if (arena->previous_offset + new_size > arena->buffer_length) {
+                return NULL;
+            }
+            arena->current_offset = arena->previous_offset + new_size;
+            return old_memory;
+        }
+        // Not the last allocation: allocate fresh and copy
+        else {
+            void *new_memory = arena_alloc_align(arena, new_size, align);
+            size_t copy_size = old_size < new_size ? old_size : new_size;
+            memmove(new_memory, old_memory, copy_size);
+            return new_memory;
+        }
+    }
+    else {
+        assert(0 && "Memory is out of bounds of the buffer in this arena");
+        return NULL;
+    }
 }
