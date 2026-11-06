@@ -227,6 +227,7 @@ void *arena_alloc_align(Arena *arena, size_t size, size_t align) {
     // curr_ptr = buffer + current_offset
     // offset = curr_ptr + padding
     // offset - buffer = current offset + padding
+    // current_offset is already accounted for, so that's why we subtract the buffer!
     offset -= (uintptr_t)arena->buffer; // Change to relative offset
     // Check to see if backing memory has space left
     if (offset+size <= arena->buffer_length) {
