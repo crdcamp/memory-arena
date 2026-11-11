@@ -36,7 +36,6 @@ int main(void) {
     arena_init(&arena, buffer, buffer_length); // Initialize an empty arena with a size of 16 bytes
     arena_print(&arena, "INITIALIZED ARENA:");
 
-
     // Now let's fill this arena with some basic integer arrays
     // We'll fill a quarter of the arena with 1s, another quarter
     // with 2s, and the last half with 3s
@@ -242,26 +241,38 @@ void *arena_alloc_align(Arena *arena, size_t size, size_t align) {
 }
 
 void *arena_resize_align(Arena *arena, void *old_memory, size_t old_size, size_t new_size, size_t align) {
+    // Convert `size_t` to `byte`
     byte *old_mem = (byte *)old_memory;
-
     assert(is_power_of_two(align));
 
+    // Check whether the caller passed a valid memory block. If they did, it's a normal allocation
     if (old_mem == NULL || old_size == 0) {
         return arena_alloc_align(arena, new_size, align);
     }
-    else if (arena->buffer <= old_mem && old_mem < arena->buffer + arena->buffer_length) {
-        // Last allocation: resize in place by moving the end of used memory
-        if (arena->buffer + arena->previous_offset == old_mem) {
-            if (arena->previous_offset + new_size > arena->buffer_length) {
-                return NULL;
-            }
+    // Does the pointer belong to the arena?
+    // This is a bounds check on the addresses to find out if `old_mem` is somehere inside the buffer
+    // If not, the caller passed the pointer from somewhere else, which is a bug
+    else if ((arena->buffer <= old_mem) && (old_mem < arena->buffer+arena->buffer_length)) {
+        // This compares addresses, not sizes. It asks "does the old block start exactly
+        // where the last allocation started?" If yes, it's where the previous offset
+        // is, and nothing lies after it (don't fully understand that)
+        if (arena->buffer+arena->previous_offset == old_mem) {
+            // Resize in place. `new_size` is the total new size
             arena->current_offset = arena->previous_offset + new_size;
+            // If the new size is greater than the old size, then set the memory and we're done
+            if (new_size > old_size) {
+                memset(&arena->buffer[arena->current_offset], 0, new_size-old_size);
+            }
             return old_memory;
         }
-        // Not the last allocation: allocate fresh and copy
+        // Otherwise, allocate a fresh block at the end of the arena, resulting
+        // in the new block becoming the new "last" block
         else {
             void *new_memory = arena_alloc_align(arena, new_size, align);
+            // If the old size is less than the new size, then the copy size is the
+            // old size. Otherwise it's the new size
             size_t copy_size = old_size < new_size ? old_size : new_size;
+            // We move the memory because.....
             memmove(new_memory, old_memory, copy_size);
             return new_memory;
         }
@@ -270,4 +281,9 @@ void *arena_resize_align(Arena *arena, void *old_memory, size_t old_size, size_t
         assert(0 && "Memory is out of bounds of the buffer in this arena");
         return NULL;
     }
+}
+
+// Because C doesn't have default parameters
+void *arena_resize(Arena *a, void *old_memory, size_t old_size, size_t new_size) {
+	return arena_resize_align(a, old_memory, old_size, new_size, DEFAULT_ALIGNMENT);
 }

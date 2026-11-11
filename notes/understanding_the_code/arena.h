@@ -33,7 +33,6 @@ bool is_power_of_two(uintptr_t x);
 uintptr_t align_forward(uintptr_t ptr, size_t align);
 void *arena_alloc_align(Arena *arena, size_t size, size_t align);
 void arena_free(Arena *arena);
-// Not implemented
 void *arena_resize_align(Arena *arena, void *old_memory, size_t old_size, size_t new_size, size_t align);
 
 #endif
